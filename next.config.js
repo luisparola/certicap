@@ -14,6 +14,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob:",
       "connect-src 'self' https://vercel.live https://*.vercel.live wss://*.pusher.com",
+      "frame-src https://vercel.live https://*.vercel.live",
       "frame-ancestors 'none'",
     ].join("; "),
   },
