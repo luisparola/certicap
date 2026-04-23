@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { corsHeaders, handleOptions } from "@/lib/cors"
+
+export async function OPTIONS(request: Request) {
+  return handleOptions(request)
+}
 
 export async function GET(
   request: Request,
   { params }: { params: { codigo: string } }
 ) {
+  const origin = request.headers.get("origin")
+  const headers = corsHeaders(origin)
+
   try {
     const certificado = await prisma.certificado.findUnique({
       where: { codigo: params.codigo },
@@ -26,7 +34,7 @@ export async function GET(
     })
 
     if (!certificado) {
-      return NextResponse.json({ found: false }, { status: 404 })
+      return NextResponse.json({ found: false }, { status: 404, headers })
     }
 
     const rut = certificado.participante.rut
@@ -62,9 +70,9 @@ export async function GET(
         modelo_equipo: p.modelo_equipo,
         capacidad_equipo: p.capacidad_equipo,
       }),
-    })
+    }, { headers })
   } catch (error) {
     console.error("Error verificando:", error)
-    return NextResponse.json({ error: "Error interno" }, { status: 500 })
+    return NextResponse.json({ error: "Error interno" }, { status: 500, headers })
   }
 }
