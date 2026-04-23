@@ -36,7 +36,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
         senales: body.senales || null, nro_registro: body.nro_registro || null,
         estado: body.estado || "PENDIENTE",
         marca_equipo: body.marca_equipo || null, modelo_equipo: body.modelo_equipo || null,
-        capacidad_equipo: body.capacidad_equipo || null, campos_extra: body.campos_extra || null,
+        capacidad_equipo: body.capacidad_equipo || null,
+        espesor_diametro: body.espesor_diametro || null,
+        aplicacion_soldadura: body.aplicacion_soldadura || null,
+        observaciones: body.observaciones || null,
+        campos_extra: body.campos_extra || null,
       },
     })
     return NextResponse.json(participante, { status: 201 })

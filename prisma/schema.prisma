@@ -74,8 +74,11 @@ model Participante {
   marca_equipo       String?
   modelo_equipo      String?
   capacidad_equipo   String?
-  campos_extra       Json?
-  certificado        Certificado?
+  espesor_diametro     String?
+  aplicacion_soldadura String?
+  observaciones        String?
+  campos_extra         Json?
+  certificado          Certificado?
   respuestasEncuesta RespuestaEncuesta[]
   createdAt          DateTime            @default(now())
 }

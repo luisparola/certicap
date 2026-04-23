@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
@@ -24,6 +25,7 @@ export default function NuevoParticipantePage() {
     nombre: "", rut: "", nota_teoria: "", nota_practica: "", asistencia_pct: "",
     nro_registro: "", estado: "PENDIENTE", marca_equipo: "", modelo_equipo: "",
     capacidad_equipo: "", senales: "",
+    espesor_diametro: "", aplicacion_soldadura: "", observaciones: "",
   })
 
   useEffect(() => {
@@ -97,6 +99,28 @@ export default function NuevoParticipantePage() {
                 <div className="space-y-2"><Label className="text-gray-300">Capacidad</Label>{form.marca_equipo === "OTRO" ? <Input value={form.capacidad_equipo} onChange={(e) => handleChange("capacidad_equipo", e.target.value)} placeholder="Especificar capacidad" className="bg-[#0F0F0F] border-white/10 text-white" /> : <Select value={form.capacidad_equipo} onValueChange={(v) => handleChange("capacidad_equipo", v)}><SelectTrigger className="bg-[#0F0F0F] border-white/10 text-white"><SelectValue placeholder="Seleccionar capacidad" /></SelectTrigger><SelectContent className="bg-[#1A1A1A] border-white/10">{capacidades.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select>}</div>
                 <div className="space-y-2"><Label className="text-gray-300">Senales</Label><Input value={form.senales} onChange={(e) => handleChange("senales", e.target.value)} placeholder="Senales utilizadas" className="bg-[#0F0F0F] border-white/10 text-white" /></div>
               </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {tipoActividad === "RIGGER" && (
+          <Card className="glass-card border-white/10 mt-4">
+            <CardHeader><CardTitle className="text-lg text-white">Datos Rigger</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2"><Label className="text-gray-300">Señales</Label><Input value={form.senales} onChange={(e) => handleChange("senales", e.target.value)} placeholder="Nota de señales" className="bg-[#0F0F0F] border-white/10 text-white" /></div>
+            </CardContent>
+          </Card>
+        )}
+
+        {tipoActividad === "SOLDADURA" && (
+          <Card className="glass-card border-white/10 mt-4">
+            <CardHeader><CardTitle className="text-lg text-white">Datos de Soldadura</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2"><Label className="text-gray-300">Espesor/Diámetro de Tubería</Label><Input value={form.espesor_diametro} onChange={(e) => handleChange("espesor_diametro", e.target.value)} placeholder="Ej: 6 pulgadas" className="bg-[#0F0F0F] border-white/10 text-white" /></div>
+                <div className="space-y-2"><Label className="text-gray-300">Aplicación de Soldadura</Label><Input value={form.aplicacion_soldadura} onChange={(e) => handleChange("aplicacion_soldadura", e.target.value)} placeholder="Ej: SMAW 6G" className="bg-[#0F0F0F] border-white/10 text-white" /></div>
+              </div>
+              <div className="space-y-2"><Label className="text-gray-300">Observaciones</Label><Textarea value={form.observaciones} onChange={(e) => handleChange("observaciones", e.target.value)} placeholder="Observaciones adicionales" className="bg-[#0F0F0F] border-white/10 text-white min-h-[80px]" /></div>
             </CardContent>
           </Card>
         )}

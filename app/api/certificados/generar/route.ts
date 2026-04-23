@@ -51,9 +51,13 @@ export async function POST(request: Request) {
 
     const fechaEmision = new Date()
     let fechaVencimiento: Date | null = null
-    if (participante.actividad.tipo_certificado === "PUENTE_GRUA") {
+    const tipoCert = participante.actividad.tipo_certificado
+    if (tipoCert === "PUENTE_GRUA" || tipoCert === "RIGGER") {
       fechaVencimiento = new Date(fechaEmision)
       fechaVencimiento.setFullYear(fechaVencimiento.getFullYear() + 1)
+    } else if (tipoCert === "SOLDADURA") {
+      fechaVencimiento = new Date(fechaEmision)
+      fechaVencimiento.setFullYear(fechaVencimiento.getFullYear() + 2)
     }
 
     const certData = {

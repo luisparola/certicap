@@ -52,6 +52,9 @@ export async function PUT(
         marca_equipo: body.marca_equipo || null,
         modelo_equipo: body.modelo_equipo || null,
         capacidad_equipo: body.capacidad_equipo || null,
+        espesor_diametro: body.espesor_diametro || null,
+        aplicacion_soldadura: body.aplicacion_soldadura || null,
+        observaciones: body.observaciones || null,
       },
     })
     return NextResponse.json(participante)
