@@ -51,11 +51,11 @@ export default function EncuestaPublicaPage() {
   const [promedio, setPromedio] = useState(0)
 
   useEffect(() => {
-    fetch(`/api/encuestas/${params.actividadId}`)
+    fetch(`/api/encuestas/${params.actividadId}/publica`)
       .then((r) => r.json())
       .then((d) => {
-        if (!d.encuesta || !d.encuesta.activa) { setNoDisponible(true); return }
-        setEncuesta(d.encuesta)
+        if (!d.disponible) { setNoDisponible(true); return }
+        setEncuesta(d)
       })
       .catch(() => setNoDisponible(true))
       .finally(() => setLoading(false))
