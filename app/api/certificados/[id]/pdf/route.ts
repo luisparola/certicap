@@ -22,7 +22,7 @@ export async function GET(
     if (certificado.participante.actividad.tenantId !== tenantId)
       return NextResponse.json({ error: "No autorizado" }, { status: 403 })
 
-    const qrDataUrl = await generarQR(certificado.qr_url)
+    const qrDataUrl = await generarQR(certificado.qr_url ?? `${process.env.NEXT_PUBLIC_BASE_URL}/verificar/${certificado.codigo}`)
 
     const pdfBuffer = await renderCertificadoPDF({
       tipo: certificado.participante.actividad.tipo_certificado,
