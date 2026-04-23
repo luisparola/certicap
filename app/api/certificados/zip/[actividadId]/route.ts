@@ -35,7 +35,7 @@ export async function GET(
 
     for (const participante of conCertificado) {
       const cert = participante.certificado!
-      const qrDataUrl = await generarQR(cert.qr_url)
+      const qrDataUrl = await generarQR(cert.qr_url ?? `${process.env.NEXT_PUBLIC_BASE_URL}/verificar/${cert.codigo}`)
       const pdfBuffer = await renderCertificadoPDF({
         tipo: actividad.tipo_certificado,
         participante,
