@@ -55,11 +55,11 @@ export const ALL_EQUIPOS: EquipoPuenteGrua[] = [
 // Legacy compat for form selects
 export const EQUIPOS_PUENTE_GRUA: Record<string, { modelos: string[]; capacidades: string[] }> = {
   KONECRANES: {
-    modelos: [...new Set(EQUIPOS_GRUPO_1_KONECRANES.map((e) => e.modelo))],
+    modelos: Array.from(new Set(EQUIPOS_GRUPO_1_KONECRANES.map((e) => e.modelo))),
     capacidades: EQUIPOS_GRUPO_1_KONECRANES.map((e) => e.capacidad),
   },
   ABUS: {
-    modelos: [...new Set(EQUIPOS_GRUPO_2_ABUS.map((e) => e.modelo))],
+    modelos: Array.from(new Set(EQUIPOS_GRUPO_2_ABUS.map((e) => e.modelo))),
     capacidades: EQUIPOS_GRUPO_2_ABUS.map((e) => e.capacidad),
   },
   "R&M": {
