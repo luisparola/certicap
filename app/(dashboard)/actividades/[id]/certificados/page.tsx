@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { ArrowLeft, Award, Download, Loader2, FileDown, Zap } from "lucide-react"
+import { ArrowLeft, Award, Download, Loader2, FileDown, Zap, Upload, X } from "lucide-react"
 
 export default function CertificadosActividadPage() {
   const params = useParams()
@@ -19,6 +20,17 @@ export default function CertificadosActividadPage() {
   const [generating, setGenerating] = useState(false)
   const [generatingId, setGeneratingId] = useState("")
   const [progress, setProgress] = useState(0)
+
+  // Probetas dialog state
+  const [probetasOpen, setProbetasOpen] = useState(false)
+  const [probetasPart, setProbetasPart] = useState<any>(null)
+  const [foto1, setFoto1] = useState<File | null>(null)
+  const [foto2, setFoto2] = useState<File | null>(null)
+  const [preview1, setPreview1] = useState<string | null>(null)
+  const [preview2, setPreview2] = useState<string | null>(null)
+  const [generatingProbetas, setGeneratingProbetas] = useState(false)
+  const input1Ref = useRef<HTMLInputElement>(null)
+  const input2Ref = useRef<HTMLInputElement>(null)
 
   const fetchData = async () => {
     const res = await fetch(`/api/actividades/${params.id}`)
@@ -38,6 +50,36 @@ export default function CertificadosActividadPage() {
     URL.revokeObjectURL(url)
   }
 
+  const handleFotoChange = (
+    file: File | null,
+    setFoto: (f: File | null) => void,
+    setPreview: (p: string | null) => void
+  ) => {
+    if (!file) return
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      toast({ variant: "destructive", title: "Formato invalido", description: "Solo JPG o PNG" })
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ variant: "destructive", title: "Archivo muy grande", description: "Max 5MB" })
+      return
+    }
+    setFoto(file)
+    setPreview(URL.createObjectURL(file))
+  }
+
+  const openProbetasDialog = (participante: any) => {
+    setProbetasPart(participante)
+    setFoto1(null); setFoto2(null)
+    setPreview1(null); setPreview2(null)
+    setProbetasOpen(true)
+  }
+
+  const closeProbetasDialog = () => {
+    setProbetasOpen(false)
+    setProbetasPart(null)
+  }
+
   const generar = async (participanteId: string) => {
     setGeneratingId(participanteId)
     try {
@@ -54,6 +96,27 @@ export default function CertificadosActividadPage() {
     } catch (err: any) {
       toast({ variant: "destructive", title: "Error", description: err.message || "Error al generar" })
     } finally { setGeneratingId("") }
+  }
+
+  const generarConFotos = async () => {
+    if (!probetasPart || !foto1 || !foto2) return
+    setGeneratingProbetas(true)
+    try {
+      const fd = new FormData()
+      fd.append("participanteId", probetasPart.id)
+      fd.append("foto_probeta_1", foto1)
+      fd.append("foto_probeta_2", foto2)
+      const res = await fetch("/api/certificados/generar", { method: "POST", body: fd })
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error) }
+      const blob = await res.blob()
+      const codigo = res.headers.get("X-Certificado-Codigo") ?? "certificado"
+      downloadBlob(blob, `certificado-${codigo}.pdf`)
+      toast({ title: "Certificado generado", description: "PDF con fotos de probetas descargado." })
+      closeProbetasDialog()
+      fetchData()
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Error", description: err.message || "Error al generar" })
+    } finally { setGeneratingProbetas(false) }
   }
 
   const descargarPDF = async (certificadoId: string, codigo: string) => {
@@ -83,6 +146,7 @@ export default function CertificadosActividadPage() {
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[#E8541A]" /></div>
   if (!actividad) return <div className="text-center py-20 text-gray-400">No encontrada</div>
 
+  const esSoldadura = actividad.tipo_certificado === "SOLDADURA"
   const participantes = actividad.participantes || []
   const conCert = participantes.filter((p: any) => p.certificado)
   const sinCert = participantes.filter((p: any) => !p.certificado)
@@ -93,7 +157,7 @@ export default function CertificadosActividadPage() {
         <Link href={`/actividades/${params.id}`}><Button variant="ghost" size="icon" className="text-gray-400 hover:text-white"><ArrowLeft className="h-5 w-5" /></Button></Link>
         <div className="flex-1"><h1 className="text-2xl font-bold text-white">Certificados</h1><p className="text-gray-400 mt-1">{actividad.nombre_curso}</p></div>
         <div className="flex gap-2">
-          {sinCert.length > 0 && <Button onClick={generarMasivo} disabled={generating} className="bg-[#E8541A] hover:bg-[#E8541A]/90">{generating ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generando...</> : <><Zap className="h-4 w-4 mr-2" />Generar Todos ({sinCert.length})</>}</Button>}
+          {sinCert.length > 0 && !esSoldadura && <Button onClick={generarMasivo} disabled={generating} className="bg-[#E8541A] hover:bg-[#E8541A]/90">{generating ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generando...</> : <><Zap className="h-4 w-4 mr-2" />Generar Todos ({sinCert.length})</>}</Button>}
           {conCert.length > 0 && <a href={`/api/certificados/zip/${params.id}`}><Button variant="outline" className="border-white/10 text-gray-300"><FileDown className="h-4 w-4 mr-2" />Descargar ZIP</Button></a>}
         </div>
       </div>
@@ -123,7 +187,13 @@ export default function CertificadosActividadPage() {
                         <Link href={`/verificar/${p.certificado.codigo}`} target="_blank"><Button variant="ghost" size="sm" className="text-gray-400 hover:text-blue-400">Ver</Button></Link>
                       </div>
                     ) : (
-                      <Button size="sm" variant="ghost" onClick={() => generar(p.id)} disabled={generatingId === p.id} className="text-[#E8541A] hover:text-[#E8541A]/80">{generatingId === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Award className="h-4 w-4 mr-1" />Generar</>}</Button>
+                      <Button size="sm" variant="ghost"
+                        onClick={() => esSoldadura ? openProbetasDialog(p) : generar(p.id)}
+                        disabled={generatingId === p.id}
+                        className="text-[#E8541A] hover:text-[#E8541A]/80"
+                      >
+                        {generatingId === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Award className="h-4 w-4 mr-1" />Generar</>}
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -132,6 +202,94 @@ export default function CertificadosActividadPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Probetas Dialog */}
+      <Dialog open={probetasOpen} onOpenChange={(open) => { if (!open) closeProbetasDialog() }}>
+        <DialogContent className="bg-[#1A1A1A] border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white">Fotos de Probetas — {probetasPart?.nombre}</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {/* Foto 1 */}
+            <div className="space-y-2">
+              <p className="text-sm text-gray-400">Foto 1 <span className="text-red-400">*</span></p>
+              <input
+                ref={input1Ref}
+                type="file"
+                accept="image/jpeg,image/png"
+                className="hidden"
+                onChange={(e) => handleFotoChange(e.target.files?.[0] ?? null, setFoto1, setPreview1)}
+              />
+              {preview1 ? (
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={preview1} alt="Foto 1" className="w-full h-40 object-cover rounded-lg border border-white/10" />
+                  <button
+                    onClick={() => { setFoto1(null); setPreview1(null) }}
+                    className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-black/80"
+                  >
+                    <X className="h-4 w-4 text-white" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => input1Ref.current?.click()}
+                  className="w-full h-32 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-[#E8541A]/50 hover:bg-[#E8541A]/5 transition-colors"
+                >
+                  <Upload className="h-6 w-6 text-gray-400" />
+                  <span className="text-sm text-gray-400">Subir foto 1 (JPG/PNG, max 5MB)</span>
+                </button>
+              )}
+            </div>
+
+            {/* Foto 2 */}
+            <div className="space-y-2">
+              <p className="text-sm text-gray-400">Foto 2 <span className="text-red-400">*</span></p>
+              <input
+                ref={input2Ref}
+                type="file"
+                accept="image/jpeg,image/png"
+                className="hidden"
+                onChange={(e) => handleFotoChange(e.target.files?.[0] ?? null, setFoto2, setPreview2)}
+              />
+              {preview2 ? (
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={preview2} alt="Foto 2" className="w-full h-40 object-cover rounded-lg border border-white/10" />
+                  <button
+                    onClick={() => { setFoto2(null); setPreview2(null) }}
+                    className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-black/80"
+                  >
+                    <X className="h-4 w-4 text-white" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => input2Ref.current?.click()}
+                  className="w-full h-32 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-[#E8541A]/50 hover:bg-[#E8541A]/5 transition-colors"
+                >
+                  <Upload className="h-6 w-6 text-gray-400" />
+                  <span className="text-sm text-gray-400">Subir foto 2 (JPG/PNG, max 5MB)</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={closeProbetasDialog} disabled={generatingProbetas} className="text-gray-400">
+              Cancelar
+            </Button>
+            <Button
+              onClick={generarConFotos}
+              disabled={!foto1 || !foto2 || generatingProbetas}
+              className="bg-[#E8541A] hover:bg-[#E8541A]/90"
+            >
+              {generatingProbetas ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generando...</> : "Generar Certificado"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

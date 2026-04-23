@@ -6,13 +6,35 @@ import { generarCodigo } from "@/lib/certificado"
 import { generarQR } from "@/lib/qr"
 import { renderCertificadoPDF } from "@/lib/pdf"
 
+async function fileToDataUri(file: File): Promise<string> {
+  const buf = Buffer.from(await file.arrayBuffer())
+  return `data:${file.type};base64,${buf.toString("base64")}`
+}
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
     const tenantId = (session.user as any).tenantId
-    const body = await request.json()
-    const { participanteId, foto_probeta_1, foto_probeta_2 } = body
+
+    let participanteId: string
+    let foto_probeta_1: string | null = null
+    let foto_probeta_2: string | null = null
+
+    const contentType = request.headers.get("content-type") ?? ""
+    if (contentType.includes("multipart/form-data")) {
+      const fd = await request.formData()
+      participanteId = fd.get("participanteId") as string
+      const f1 = fd.get("foto_probeta_1") as File | null
+      const f2 = fd.get("foto_probeta_2") as File | null
+      if (f1 instanceof File) foto_probeta_1 = await fileToDataUri(f1)
+      if (f2 instanceof File) foto_probeta_2 = await fileToDataUri(f2)
+    } else {
+      const body = await request.json()
+      participanteId = body.participanteId
+      foto_probeta_1 = body.foto_probeta_1 || null
+      foto_probeta_2 = body.foto_probeta_2 || null
+    }
 
     const participante = await prisma.participante.findFirst({
       where: { id: participanteId },
@@ -36,8 +58,9 @@ export async function POST(request: Request) {
 
     const certData = {
       id: "temp", participanteId, codigo, fecha_emision: fechaEmision,
-      fecha_vencimiento: fechaVencimiento, foto_probeta_1: foto_probeta_1 || null,
-      foto_probeta_2: foto_probeta_2 || null, qr_url: verificarUrl,
+      fecha_vencimiento: fechaVencimiento,
+      foto_probeta_1, foto_probeta_2,
+      qr_url: verificarUrl,
     }
 
     const pdfBuffer = await renderCertificadoPDF({
@@ -49,7 +72,7 @@ export async function POST(request: Request) {
     const certificado = await prisma.certificado.create({
       data: {
         participanteId, codigo, pdf_url: null,
-        foto_probeta_1: foto_probeta_1 || null, foto_probeta_2: foto_probeta_2 || null,
+        foto_probeta_1, foto_probeta_2,
         fecha_emision: fechaEmision, fecha_vencimiento: fechaVencimiento,
         qr_url: verificarUrl,
       },
