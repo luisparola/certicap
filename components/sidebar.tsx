@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils"
 import {
   LayoutDashboard,
   BookOpen,
-  Award,
   Search,
   LogOut,
   Menu,
   X,
   ChevronLeft,
+  ClipboardList,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -34,6 +34,11 @@ const navItems = [
     label: "Certificados",
     href: "/certificados/buscar",
     icon: Search,
+  },
+  {
+    label: "Encuestas",
+    href: "/encuestas",
+    icon: ClipboardList,
   },
 ]
 

@@ -49,6 +49,7 @@ model Actividad {
   observaciones    String?
   createdAt        DateTime       @default(now())
   participantes    Participante[]
+  encuesta         Encuesta?
 }
 
 enum TipoCert {
@@ -59,23 +60,24 @@ enum TipoCert {
 }
 
 model Participante {
-  id               String       @id @default(cuid())
-  actividadId      String
-  actividad        Actividad    @relation(fields: [actividadId], references: [id])
-  nombre           String
-  rut              String
-  nota_teoria      Float?
-  nota_practica    Float?
-  asistencia_pct   Float?
-  senales          String?
-  nro_registro     String?
-  estado           Estado       @default(PENDIENTE)
-  marca_equipo     String?
-  modelo_equipo    String?
-  capacidad_equipo String?
-  campos_extra     Json?
-  certificado      Certificado?
-  createdAt        DateTime     @default(now())
+  id                 String              @id @default(cuid())
+  actividadId        String
+  actividad          Actividad           @relation(fields: [actividadId], references: [id])
+  nombre             String
+  rut                String
+  nota_teoria        Float?
+  nota_practica      Float?
+  asistencia_pct     Float?
+  senales            String?
+  nro_registro       String?
+  estado             Estado              @default(PENDIENTE)
+  marca_equipo       String?
+  modelo_equipo      String?
+  capacidad_equipo   String?
+  campos_extra       Json?
+  certificado        Certificado?
+  respuestasEncuesta RespuestaEncuesta[]
+  createdAt          DateTime            @default(now())
 }
 
 enum Estado {
@@ -96,4 +98,45 @@ model Certificado {
   fecha_vencimiento DateTime?
   qr_url            String?
   createdAt         DateTime     @default(now())
+}
+
+model Encuesta {
+  id          String              @id @default(cuid())
+  actividadId String              @unique
+  actividad   Actividad           @relation(fields: [actividadId], references: [id])
+  titulo      String
+  descripcion String?
+  activa      Boolean             @default(false)
+  preguntas   Pregunta[]
+  respuestas  RespuestaEncuesta[]
+  createdAt   DateTime            @default(now())
+}
+
+model Pregunta {
+  id         String              @id @default(cuid())
+  encuestaId String
+  encuesta   Encuesta            @relation(fields: [encuestaId], references: [id])
+  orden      Int
+  texto      String
+  respuestas RespuestaPregunta[]
+}
+
+model RespuestaEncuesta {
+  id             String              @id @default(cuid())
+  encuestaId     String
+  encuesta       Encuesta            @relation(fields: [encuestaId], references: [id])
+  participanteId String
+  participante   Participante        @relation(fields: [participanteId], references: [id])
+  completada     Boolean             @default(false)
+  createdAt      DateTime            @default(now())
+  respuestas     RespuestaPregunta[]
+}
+
+model RespuestaPregunta {
+  id                  String            @id @default(cuid())
+  respuestaEncuestaId String
+  respuestaEncuesta   RespuestaEncuesta @relation(fields: [respuestaEncuestaId], references: [id])
+  preguntaId          String
+  pregunta            Pregunta          @relation(fields: [preguntaId], references: [id])
+  valor               Int
 }
