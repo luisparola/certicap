@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 
 export async function GET(
   request: Request,
@@ -104,7 +105,7 @@ export async function DELETE(
       select: { id: true },
     })
 
-    await prisma.$transaction(async (tx: typeof prisma) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       if (encuesta) {
         await tx.respuestaPregunta.deleteMany({
           where: { respuestaEncuesta: { encuestaId: encuesta.id } },
