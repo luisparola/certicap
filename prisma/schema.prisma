@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id            String      @id @default(cuid())
+  nombre        String
+  rut           String
+  logo_url      String?
+  color_primary String?
+  createdAt     DateTime    @default(now())
+  actividades   Actividad[]
+  usuarios      Usuario[]
+}
+
+model Usuario {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  nombre    String
+  rol       Rol      @default(OPERADOR)
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum Rol {
+  ADMIN
+  OPERADOR
+}
+
+model Actividad {
+  id               String         @id @default(cuid())
+  tenantId         String
+  tenant           Tenant         @relation(fields: [tenantId], references: [id])
+  nombre_curso     String
+  tipo_certificado TipoCert
+  fecha_inicio     DateTime
+  fecha_termino    DateTime
+  lugar            String
+  instructor       String
+  empresa_nombre   String
+  empresa_rut      String
+  observaciones    String?
+  createdAt        DateTime       @default(now())
+  participantes    Participante[]
+}
+
+enum TipoCert {
+  COMPETENCIAS
+  PUENTE_GRUA
+  RIGGER
+  SOLDADURA
+}
+
+model Participante {
+  id               String       @id @default(cuid())
+  actividadId      String
+  actividad        Actividad    @relation(fields: [actividadId], references: [id])
+  nombre           String
+  rut              String
+  nota_teoria      Float?
+  nota_practica    Float?
+  asistencia_pct   Float?
+  senales          String?
+  nro_registro     String?
+  estado           Estado       @default(PENDIENTE)
+  marca_equipo     String?
+  modelo_equipo    String?
+  capacidad_equipo String?
+  campos_extra     Json?
+  certificado      Certificado?
+  createdAt        DateTime     @default(now())
+}
+
+enum Estado {
+  APROBADO
+  REPROBADO
+  PENDIENTE
+}
+
+model Certificado {
+  id                String       @id @default(cuid())
+  participanteId    String       @unique
+  participante      Participante @relation(fields: [participanteId], references: [id])
+  codigo            String       @unique
+  pdf_url           String?
+  foto_probeta_1    String?
+  foto_probeta_2    String?
+  fecha_emision     DateTime     @default(now())
+  fecha_vencimiento DateTime?
+  qr_url            String?
+  createdAt         DateTime     @default(now())
+}

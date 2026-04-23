@@ -1,0 +1,14 @@
+{
+  "buildCommand": "prisma generate && next build",
+  "functions": {
+    "app/api/certificados/generar/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/certificados/generar-masivo/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/certificados/zip/[actividadId]/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
