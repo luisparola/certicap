@@ -99,9 +99,24 @@ export async function DELETE(
       return NextResponse.json({ error: "Actividad no encontrada" }, { status: 404 })
     }
 
-    await prisma.certificado.deleteMany({ where: { participante: { actividadId: params.id } } })
-    await prisma.participante.deleteMany({ where: { actividadId: params.id } })
-    await prisma.actividad.delete({ where: { id: params.id } })
+    const encuesta = await prisma.encuesta.findUnique({
+      where: { actividadId: params.id },
+      select: { id: true },
+    })
+
+    await prisma.$transaction(async (tx: typeof prisma) => {
+      if (encuesta) {
+        await tx.respuestaPregunta.deleteMany({
+          where: { respuestaEncuesta: { encuestaId: encuesta.id } },
+        })
+        await tx.respuestaEncuesta.deleteMany({ where: { encuestaId: encuesta.id } })
+        await tx.pregunta.deleteMany({ where: { encuestaId: encuesta.id } })
+        await tx.encuesta.delete({ where: { id: encuesta.id } })
+      }
+      await tx.certificado.deleteMany({ where: { participante: { actividadId: params.id } } })
+      await tx.participante.deleteMany({ where: { actividadId: params.id } })
+      await tx.actividad.delete({ where: { id: params.id } })
+    })
 
     return NextResponse.json({ message: "Actividad eliminada" })
   } catch (error) {
