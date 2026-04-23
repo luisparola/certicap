@@ -153,19 +153,6 @@ export default function VerificarPage() {
                 </>
               )}
 
-              {/* Equipo (PUENTE_GRUA) */}
-              {data.tipo === "PUENTE_GRUA" && (data.marca_equipo || data.modelo_equipo || data.capacidad_equipo) && (
-                <>
-                  <div className="space-y-3">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">Equipo</p>
-                    <DataRow label="Marca" value={data.marca_equipo} />
-                    <DataRow label="Modelo" value={data.modelo_equipo} />
-                    <DataRow label="Capacidad" value={data.capacidad_equipo} />
-                  </div>
-                  <Separator className="bg-white/5" />
-                </>
-              )}
-
               {/* Fechas */}
               <div className="space-y-3">
                 <DataRow label="Fecha Emision" value={new Date(data.fecha_emision).toLocaleDateString("es-CL")} />
