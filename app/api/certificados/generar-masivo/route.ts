@@ -4,8 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { generarCodigo } from "@/lib/certificado"
 import { generarQR } from "@/lib/qr"
-import { renderPDF, savePDF } from "@/lib/pdf"
-import { generarTemplateHTML } from "@/components/certificados/template"
+import { renderCertificadoPDF, savePDF } from "@/lib/pdf"
 
 export async function POST(request: Request) {
   try {
@@ -23,10 +22,6 @@ export async function POST(request: Request) {
 
     const sinCertificado = actividad.participantes.filter((p) => {
       if (p.certificado) return false
-      if (actividad.tipo_certificado === "SOLDADURA") {
-        // Solo generar si ya tiene las 2 fotos (cargadas previamente)
-        return true // En masivo, generamos sin fotos por ahora
-      }
       return true
     })
 
@@ -49,11 +44,12 @@ export async function POST(request: Request) {
           fecha_emision: fechaEmision, fecha_vencimiento: fechaVencimiento,
           foto_probeta_1: null, foto_probeta_2: null, qr_url: verificarUrl,
         }
-        const html = generarTemplateHTML({
+
+        const pdfBuffer = await renderCertificadoPDF({
           tipo: actividad.tipo_certificado, participante, actividad,
           certificado: certData, qrDataUrl,
         })
-        const pdfBuffer = await renderPDF(html)
+
         const pdfUrl = savePDF(pdfBuffer, `${codigo}.pdf`)
         await prisma.certificado.create({
           data: {

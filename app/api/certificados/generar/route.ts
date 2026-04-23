@@ -4,8 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { generarCodigo } from "@/lib/certificado"
 import { generarQR } from "@/lib/qr"
-import { renderPDF, savePDF } from "@/lib/pdf"
-import { generarTemplateHTML } from "@/components/certificados/template"
+import { renderCertificadoPDF, savePDF } from "@/lib/pdf"
 
 export async function POST(request: Request) {
   try {
@@ -41,13 +40,12 @@ export async function POST(request: Request) {
       foto_probeta_2: foto_probeta_2 || null, qr_url: verificarUrl,
     }
 
-    const html = generarTemplateHTML({
+    const pdfBuffer = await renderCertificadoPDF({
       tipo: participante.actividad.tipo_certificado,
       participante, actividad: participante.actividad,
       certificado: certData, qrDataUrl,
     })
 
-    const pdfBuffer = await renderPDF(html)
     const filename = `${codigo}.pdf`
     const pdfUrl = savePDF(pdfBuffer, filename)
 
