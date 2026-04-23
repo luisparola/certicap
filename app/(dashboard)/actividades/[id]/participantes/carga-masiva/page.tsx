@@ -51,8 +51,15 @@ export default function CargaMasivaPage() {
       const data = new Uint8Array(evt.target?.result as ArrayBuffer)
       const wb = XLSX.read(data, { type: "array" })
       const ws = wb.Sheets[wb.SheetNames[0]]
-      const json = XLSX.utils.sheet_to_json<Record<string, any>>(ws)
-      if (json.length > 0) console.log("Headers encontrados:", Object.keys(json[0]))
+      const raw = XLSX.utils.sheet_to_json<any[]>(ws, { header: 1, defval: "" })
+      const headers = (raw[0] as string[]).map((h) => String(h ?? "").trim())
+      const dataRows = raw.slice(1).filter((r: any[]) => r.some((v) => v !== ""))
+      console.log("Headers encontrados:", headers)
+      const json: Record<string, any>[] = dataRows.map((row: any[]) => {
+        const obj: Record<string, any> = {}
+        headers.forEach((h, i) => { obj[h] = row[i] })
+        return obj
+      })
       const validEstados = ["APROBADO", "REPROBADO", "PENDIENTE"]
       const parsed: ParsedRow[] = json.map((row) => {
         const errors: string[] = []
