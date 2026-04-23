@@ -1,368 +1,312 @@
-import React from "react"
-import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer"
-import {
-  EQUIPOS_GRUPO_1_KONECRANES,
-  EQUIPOS_GRUPO_2_ABUS,
-  EQUIPOS_GRUPO_3_VARIOS,
-  EQUIPOS_GRUPO_4_INAMAR_VAPOR,
-  type EquipoPuenteGrua,
-} from "@/lib/equipos"
+/* HTML certificate template — replaces @react-pdf/renderer */
 
-/* ── Constants ──────────────────────────────────────────────────────── */
-const ORANGE = "#E8541A"
-const BLACK = "#000000"
-const GRAY_BG = "#D0D0D0"
-const B = 0.5 // border width
-
-const TIPO_LABELS: Record<string, string> = {
+const TITULO_CERT: Record<string, string> = {
   COMPETENCIAS: "CERTIFICADO DE COMPETENCIAS",
   PUENTE_GRUA: "CERTIFICADO DE OPERADOR DE PUENTE GRÚA",
   RIGGER: "CERTIFICADO DE RIGGER",
   SOLDADURA: "CERTIFICADO DE SOLDADURA",
 }
 
-/* ── Styles ─────────────────────────────────────────────────────────── */
-const s = StyleSheet.create({
-  page: { paddingTop: 28, paddingBottom: 28, paddingHorizontal: 28, fontSize: 9, fontFamily: "Helvetica", color: BLACK },
-
-  /* Header */
-  headerTable: { flexDirection: "row", borderWidth: B, borderColor: BLACK },
-  headerCol1: { width: "20%", alignItems: "center", justifyContent: "center", padding: 4, borderRightWidth: B, borderRightColor: BLACK },
-  headerCol2: { width: "60%", borderRightWidth: B, borderRightColor: BLACK },
-  headerCol2Top: { padding: 5, alignItems: "center", justifyContent: "center" },
-  headerCol2Bot: { borderTopWidth: B, borderTopColor: BLACK, padding: 5, alignItems: "center", justifyContent: "center" },
-  headerCol3: { width: "20%", justifyContent: "center", padding: 6, gap: 2 },
-  headerLogo: { width: 78 },
-  headerSgc: { fontFamily: "Helvetica-Bold", fontSize: 10, textAlign: "center" },
-  headerCertTitle: { fontFamily: "Helvetica-Bold", fontSize: 10, textAlign: "center", color: ORANGE },
-  headerMeta: { fontFamily: "Helvetica-Bold", fontSize: 8, textAlign: "right" },
-
-  /* Section titles */
-  sectionBold: { fontFamily: "Helvetica-Bold", fontSize: 9, marginTop: 6, marginBottom: 2 },
-  sectionNormal: { fontSize: 9, marginTop: 6, marginBottom: 2 },
-
-  /* Info table */
-  infoTable: { borderWidth: B, borderColor: BLACK, marginBottom: 3 },
-  infoRow: { flexDirection: "row", borderBottomWidth: B, borderBottomColor: BLACK },
-  infoRowLast: { flexDirection: "row" },
-  infoLabel: { width: "30%", padding: 3, fontFamily: "Helvetica-Bold", fontSize: 9, borderRightWidth: B, borderRightColor: BLACK },
-  infoValue: { width: "70%", padding: 3, fontSize: 9 },
-
-  /* Notes table */
-  notesTable: { borderWidth: B, borderColor: BLACK, marginBottom: 4 },
-  notesHRow: { flexDirection: "row", backgroundColor: GRAY_BG },
-  notesSRow: { flexDirection: "row", backgroundColor: GRAY_BG, borderTopWidth: B, borderTopColor: BLACK },
-  notesDRow: { flexDirection: "row" },
-  notesTh: { padding: 3, fontFamily: "Helvetica-Bold", fontSize: 8, textAlign: "center", borderRightWidth: B, borderRightColor: BLACK },
-  notesTd: { padding: 3, fontSize: 9, textAlign: "center", borderRightWidth: B, borderRightColor: BLACK },
-
-  /* Equipo tables */
-  equipoGroupTitle: { fontFamily: "Helvetica-Bold", fontSize: 8, marginTop: 4, marginBottom: 1 },
-  equipoTable: { borderWidth: B, borderColor: BLACK, marginBottom: 3 },
-  equipoRow: { flexDirection: "row", borderBottomWidth: B, borderBottomColor: BLACK },
-  equipoRowLast: { flexDirection: "row" },
-  equipoLabelCell: { padding: 2, fontSize: 6, fontFamily: "Helvetica-Bold", backgroundColor: GRAY_BG, textAlign: "center", borderRightWidth: B, borderRightColor: BLACK },
-  equipoDataCell: { padding: 2, fontSize: 6, textAlign: "center", borderRightWidth: B, borderRightColor: BLACK },
-
-  /* Dates */
-  fechasTable: { borderWidth: B, borderColor: BLACK, marginTop: 6, marginBottom: 4 },
-
-  /* Soldadura */
-  fotosBox: { borderWidth: B, borderColor: BLACK, flexDirection: "row", justifyContent: "space-around", padding: 4, marginBottom: 4, gap: 6 },
-  fotoImg: { width: "46%", height: 160 },
-  obsBox: { borderWidth: B, borderColor: BLACK, padding: 6, marginBottom: 4, height: 60 },
-
-  /* Footer */
-  legalText: { fontFamily: "Helvetica-Bold", fontSize: 7, marginTop: 6, marginBottom: 6, lineHeight: 1.5 },
-  footerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginTop: 4, marginBottom: 4 },
-  footerLeft: { alignItems: "center", width: "28%" },
-  footerCenter: { alignItems: "center", width: "38%" },
-  footerRight: { alignItems: "center", width: "28%" },
-  qrLabel: { fontSize: 7, marginBottom: 4, textAlign: "center" },
-  qrImg: { width: 70, height: 70 },
-  firmaImg: { width: 110, height: 46 },
-  firmaLine: { width: "90%", borderTopWidth: 1, borderTopColor: BLACK, marginVertical: 3 },
-  firmaName: { fontFamily: "Helvetica-Bold", fontSize: 9 },
-  firmaTitle: { fontSize: 8, textAlign: "center" },
-  footerOrgLabel: { fontFamily: "Helvetica-Bold", fontSize: 10, marginBottom: 4, textAlign: "center" },
-  footerLogoImg: { width: 68 },
-  pageFooter: { fontSize: 7, textAlign: "center", marginTop: 4, lineHeight: 1.5 },
-})
-
-/* ── Helpers ────────────────────────────────────────────────────────── */
-function InfoRow({ label, value, last }: { label: string; value: string; last?: boolean }) {
-  return (
-    <View style={last ? s.infoRowLast : s.infoRow}>
-      <Text style={s.infoLabel}>{label}</Text>
-      <Text style={s.infoValue}>{value}</Text>
-    </View>
-  )
+function esc(val: any): string {
+  if (val == null) return ""
+  return String(val)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
 }
 
-/* Double-header notes table.
-   COMPETENCIAS / SOLDADURA (no señales): 5 cols → notas spans 2
-   RIGGER / PUENTE_GRUA (con señales):   6 cols → notas spans 3        */
-function NotesTable({ p, senales }: { p: any; senales: boolean }) {
-  const sub = senales ? 3 : 2  // cols under NOTAS
-  const total = sub + 3        // + ASISTENCIA + N°REG + ESTADO
-  const pct = (n: number) => `${((n / total) * 100).toFixed(2)}%`
-  const notasW = pct(sub)
-  const singleW = pct(1)
-  const thL = { ...s.notesTh, borderRightWidth: 0 } // last in row → no right border
-  const tdL = { ...s.notesTd, borderRightWidth: 0, fontFamily: "Helvetica-Bold" }
-
-  return (
-    <View style={s.notesTable}>
-      {/* Row 1 — group headers */}
-      <View style={s.notesHRow}>
-        <Text style={{ ...s.notesTh, width: notasW }}>NOTAS</Text>
-        <Text style={{ ...s.notesTh, width: singleW }}>ASISTENCIA</Text>
-        <Text style={{ ...s.notesTh, width: singleW }}>N° REGISTRO</Text>
-        <Text style={{ ...thL, width: singleW }}>ESTADO</Text>
-      </View>
-      {/* Row 2 — sub-headers */}
-      <View style={s.notesSRow}>
-        <Text style={{ ...s.notesTh, width: singleW }}>TEORÍA</Text>
-        {senales && <Text style={{ ...s.notesTh, width: singleW }}>SEÑALES</Text>}
-        <Text style={{ ...s.notesTh, width: singleW }}>PRÁCTICA</Text>
-        {/* empty cells preserve column borders */}
-        <Text style={{ ...s.notesTh, width: singleW }}> </Text>
-        <Text style={{ ...s.notesTh, width: singleW }}> </Text>
-        <Text style={{ ...thL, width: singleW }}> </Text>
-      </View>
-      {/* Row 3 — data */}
-      <View style={s.notesDRow}>
-        <Text style={{ ...s.notesTd, width: singleW }}>{p.nota_teoria ?? "-"}</Text>
-        {senales && <Text style={{ ...s.notesTd, width: singleW }}>{p.senales ?? "-"}</Text>}
-        <Text style={{ ...s.notesTd, width: singleW }}>{p.nota_practica ?? "-"}</Text>
-        <Text style={{ ...s.notesTd, width: singleW }}>
-          {p.asistencia_pct != null ? `${p.asistencia_pct}%` : "-"}
-        </Text>
-        <Text style={{ ...s.notesTd, width: singleW }}>{p.nro_registro || "-"}</Text>
-        <Text style={{ ...tdL, width: singleW }}>{p.estado}</Text>
-      </View>
-    </View>
-  )
-}
-
-/* Equipo group: label-first rows (MARCA | v1 | v2 | ...), no highlighting */
-function EquipoGroupTable({ title, equipos }: { title: string; equipos: EquipoPuenteGrua[] }) {
-  const n = equipos.length
-  // label col = 15%, remaining split among n data cols
-  const labelW = "15%"
-  const dataW = `${(85 / n).toFixed(2)}%`
-
-  const rows: Array<{ label: string; field: keyof EquipoPuenteGrua }> = [
-    { label: "MARCA", field: "marca" },
-    { label: "MODELO", field: "modelo" },
-    { label: "CAPACIDAD", field: "capacidad" },
-  ]
-
-  return (
-    <View>
-      <Text style={s.equipoGroupTitle}>{title}</Text>
-      <View style={s.equipoTable}>
-        {rows.map(({ label, field }, ri) => (
-          <View key={ri} style={ri < 2 ? s.equipoRow : s.equipoRowLast}>
-            <Text style={{ ...s.equipoLabelCell, width: labelW }}>{label}</Text>
-            {equipos.map((eq, ci) => (
-              <Text
-                key={ci}
-                style={{
-                  ...s.equipoDataCell,
-                  width: dataW,
-                  borderRightWidth: ci === n - 1 ? 0 : B,
-                }}
-              >
-                {eq[field]}
-              </Text>
-            ))}
-          </View>
-        ))}
-      </View>
-    </View>
-  )
-}
-
-/* ── Main export ─────────────────────────────────────────────────────── */
-export function CertificadoDocument(data: {
+export interface HtmlCertData {
   tipo: string
-  participante: any
-  actividad: any
-  certificado: any
-  qrDataUrl: string
-}) {
-  const { tipo, participante, actividad, certificado, qrDataUrl } = data
+  logoBase64: string
+  firmaBase64: string
+  qrBase64: string
+  pagina: string
+  empresa_nombre: string
+  empresa_rut: string
+  nombre_curso: string
+  fecha_inicio: string
+  fecha_termino: string
+  lugar: string
+  instructor: string
+  nombre_participante: string
+  rut_participante: string
+  nota_teoria: string
+  nota_practica: string
+  asistencia_pct: string
+  nro_registro: string
+  estado: string
+  senales: string
+  espesor_diametro?: string
+  aplicacion_soldadura?: string
+  observaciones?: string
+  foto_probeta_1?: string
+  foto_probeta_2?: string
+  fecha_emision: string
+  fecha_vencimiento?: string
+}
 
-  const fechaEmision = new Date(certificado.fecha_emision).toLocaleDateString("es-CL")
-  const fechaVencimiento = certificado.fecha_vencimiento
-    ? new Date(certificado.fecha_vencimiento).toLocaleDateString("es-CL")
-    : null
-  const fechaInicio = new Date(actividad.fecha_inicio).toLocaleDateString("es-CL")
-  const fechaTermino = new Date(actividad.fecha_termino).toLocaleDateString("es-CL")
+export function generarHTMLCertificado(d: HtmlCertData): string {
+  const showSenales = d.tipo === "RIGGER" || d.tipo === "PUENTE_GRUA"
+  const showEquipos = d.tipo === "PUENTE_GRUA"
+  const isSoldadura = d.tipo === "SOLDADURA"
+  const titulo = TITULO_CERT[d.tipo] ?? d.tipo
 
-  const showSenales = tipo === "RIGGER" || tipo === "PUENTE_GRUA"
-  const showEquipos = tipo === "PUENTE_GRUA"
-  const isSoldadura = tipo === "SOLDADURA"
-  const showVencimiento = tipo !== "COMPETENCIAS"
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<style>
+  @page { size: A4; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 9pt;
+    color: #000;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 15mm;
+  }
 
-  // TODO: reemplazar con logo real de Formacap (PNG transparente)
-  const logoSrc = `${process.cwd()}/public/logo-formacap.png`
-  // TODO: reemplazar con firma real de Alexander Quijada (PNG transparente)
-  const firmaSrc = `${process.cwd()}/public/firma-formacap.png`
+  /* HEADER */
+  table.header { width: 100%; border-collapse: collapse; border: 0.5pt solid #000; }
+  table.header td { border: 0.5pt solid #000; padding: 4pt 6pt; vertical-align: middle; }
+  .logo-cell { width: 20%; text-align: center; }
+  .title-cell { width: 60%; text-align: center; }
+  .version-cell { width: 20%; text-align: center; font-weight: bold; font-size: 8pt; line-height: 1.8; }
+  .sgc-text { font-weight: bold; font-size: 10pt; }
+  .cert-title-text {
+    color: #E8541A; font-weight: bold; font-size: 10pt;
+    border-top: 0.5pt solid #000; padding-top: 4pt; margin-top: 4pt;
+  }
 
-  const paginaLabel = tipo === "PUENTE_GRUA" ? "Página 1 de 2" : "Página 1 de 1"
+  /* SECTIONS */
+  .sec-bold   { font-weight: bold; font-size: 9pt; margin-top: 8pt; margin-bottom: 2pt; }
+  .sec-normal { font-weight: normal; font-size: 9pt; margin-top: 8pt; margin-bottom: 2pt; }
 
-  return (
-    <Document>
-      <Page size="A4" style={s.page}>
+  /* INFO TABLE */
+  table.info { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  table.info td { border: 0.5pt solid #000; padding: 3pt 5pt; }
+  table.info td.lbl { width: 30%; font-weight: bold; }
 
-        {/* ── HEADER TABLE ─────────────────────────────────────────── */}
-        <View style={s.headerTable}>
-          {/* Col 1: logo */}
-          <View style={s.headerCol1}>
-            <Image src={logoSrc} style={s.headerLogo} />
-          </View>
+  /* NOTAS TABLE */
+  table.notas { width: 100%; border-collapse: collapse; font-size: 9pt; margin-top: 8pt; }
+  table.notas td, table.notas th { border: 0.5pt solid #000; padding: 3pt 4pt; text-align: center; }
+  table.notas tr.hrow th { background: #D0D0D0; font-weight: bold; }
 
-          {/* Col 2: SGC title (top) + cert title in orange (bottom) */}
-          <View style={s.headerCol2}>
-            <View style={s.headerCol2Top}>
-              <Text style={s.headerSgc}>Sistema de Gestión de la Calidad</Text>
-            </View>
-            <View style={s.headerCol2Bot}>
-              <Text style={s.headerCertTitle}>{TIPO_LABELS[tipo] ?? tipo}</Text>
-            </View>
-          </View>
+  /* FECHAS */
+  table.fechas { width: 55%; border-collapse: collapse; margin-top: 8pt; font-size: 9pt; }
+  table.fechas td { border: 0.5pt solid #000; padding: 3pt 5pt; }
+  table.fechas td.lbl { font-weight: bold; width: 55%; }
 
-          {/* Col 3: version meta (all bold) */}
-          <View style={s.headerCol3}>
-            <Text style={s.headerMeta}>Versión: 3</Text>
-            <Text style={s.headerMeta}>RES. SENCE 2872</Text>
-            <Text style={s.headerMeta}>{paginaLabel}</Text>
-          </View>
-        </View>
+  /* LEGAL */
+  .legal { margin-top: 10pt; font-size: 8.5pt; font-weight: bold; text-align: justify; }
 
-        {/* ── INFORMACIÓN EMPRESA PARTICIPANTE ─────────────────────── */}
-        <Text style={s.sectionBold}>INFORMACIÓN EMPRESA PARTICIPANTE</Text>
-        <View style={s.infoTable}>
-          <InfoRow label="NOMBRE:" value={actividad.empresa_nombre} />
-          <InfoRow label="RUT:" value={actividad.empresa_rut} last />
-        </View>
+  /* FOOTER */
+  table.footer { width: 100%; border-collapse: collapse; margin-top: 12pt; }
+  table.footer td { width: 33.3%; text-align: center; vertical-align: bottom; padding: 4pt; }
+  .qr-label { font-size: 7pt; margin-bottom: 4pt; }
+  .firma-line { border-top: 1pt solid #000; width: 70%; margin: 4pt auto 0; padding-top: 3pt; }
+  .org-label { font-weight: bold; font-size: 11pt; margin-bottom: 4pt; }
 
-        {/* ── INFORMACIÓN DE CURSO ─────────────────────────────────── */}
-        <Text style={s.sectionNormal}>INFORMACIÓN DE CURSO</Text>
-        <View style={s.infoTable}>
-          <InfoRow label="NOMBRE:" value={actividad.nombre_curso} />
-          <InfoRow label="FECHA INICIO:" value={fechaInicio} />
-          <InfoRow label="FECHA TÉRMINO:" value={fechaTermino} />
-          <InfoRow label="LUGAR:" value={actividad.lugar} />
-          <InfoRow label="INSTRUCTOR:" value={actividad.instructor} last />
-        </View>
+  /* PAGE FOOTER */
+  .pie { text-align: center; font-size: 7.5pt; margin-top: 10pt; line-height: 1.6; }
 
-        {/* ── INFORMACIÓN PARTICIPANTE ─────────────────────────────── */}
-        <Text style={s.sectionNormal}>INFORMACIÓN PARTICIPANTE</Text>
-        <View style={s.infoTable}>
-          <InfoRow label="NOMBRE:" value={participante.nombre} />
-          <InfoRow label="RUT:" value={participante.rut} last />
-        </View>
+  /* EQUIPOS */
+  table.equipos { width: 100%; border-collapse: collapse; margin-top: 3pt; font-size: 7pt; }
+  table.equipos td { border: 0.5pt solid #000; padding: 2pt 3pt; text-align: center; }
+  table.equipos td.eq-lbl { font-weight: bold; background: #E8E8E8; text-align: left; width: 12%; }
 
-        {/* ── SOLDADURA: INFORMACIÓN DE PROBETAS ───────────────────── */}
-        {isSoldadura && (
-          <>
-            <Text style={s.sectionNormal}>INFORMACIÓN DE PROBETAS</Text>
-            <View style={s.infoTable}>
-              <InfoRow label="ESPESOR/DIÁMETRO DE TUBERÍA:" value={participante.espesor_diametro || "-"} />
-              <InfoRow label="APLICACIÓN DE SOLDADURA:" value={participante.aplicacion_soldadura || "-"} last />
-            </View>
-          </>
-        )}
+  /* FOTOS */
+  .fotos-wrap { display: flex; gap: 6pt; border: 0.5pt solid #000; padding: 4pt; margin-top: 2pt; }
+  .fotos-wrap img { width: 49%; height: 120pt; object-fit: cover; }
+  .foto-placeholder { width: 49%; height: 120pt; border: 0.5pt solid #ccc; }
 
-        {/* ── SOLDADURA: FOTOS DE PROBETAS ─────────────────────────── */}
-        {isSoldadura && (certificado.foto_probeta_1 || certificado.foto_probeta_2) && (
-          <>
-            <Text style={s.sectionNormal}>FOTOS DE PROBETAS</Text>
-            <View style={s.fotosBox}>
-              {certificado.foto_probeta_1 && (
-                <Image src={certificado.foto_probeta_1} style={s.fotoImg} />
-              )}
-              {certificado.foto_probeta_2 && (
-                <Image src={certificado.foto_probeta_2} style={s.fotoImg} />
-              )}
-            </View>
-          </>
-        )}
+  /* OBS */
+  .obs-box { border: 0.5pt solid #000; min-height: 40pt; padding: 4pt; margin-top: 2pt; font-size: 9pt; }
 
-        {/* ── SOLDADURA: OBSERVACIONES (fixed-height, always shown) ── */}
-        {isSoldadura && (
-          <>
-            <Text style={s.sectionBold}>OBSERVACIONES</Text>
-            <View style={s.obsBox}>
-              {participante.observaciones ? (
-                <Text style={{ fontSize: 9 }}>{participante.observaciones}</Text>
-              ) : null}
-            </View>
-          </>
-        )}
+  img.logo { width: 100%; max-height: 50pt; object-fit: contain; }
+  img.firma { height: 45pt; max-width: 140pt; object-fit: contain; }
+  img.qr { width: 65pt; height: 65pt; }
+  img.logo-footer { height: 50pt; object-fit: contain; }
+</style>
+</head>
+<body>
 
-        {/* ── TABLA DE NOTAS ───────────────────────────────────────── */}
-        <NotesTable p={participante} senales={showSenales} />
+<!-- HEADER -->
+<table class="header">
+  <tr>
+    <td class="logo-cell">
+      ${d.logoBase64 ? `<img class="logo" src="${d.logoBase64}" alt="Formacap"/>` : "<span style='font-weight:bold;font-size:11pt'>FORMACAP</span>"}
+    </td>
+    <td class="title-cell">
+      <div class="sgc-text">Sistema de Gestión de la Calidad</div>
+      <div class="cert-title-text">${esc(titulo)}</div>
+    </td>
+    <td class="version-cell">
+      Versión: 3<br/>RES. SENCE 2872<br/>Página ${esc(d.pagina)}
+    </td>
+  </tr>
+</table>
 
-        {/* ── EQUIPOS PUENTE GRÚA ──────────────────────────────────── */}
-        {showEquipos && (
-          <View>
-            <Text style={s.sectionBold}>EQUIPOS PUENTE GRÚA</Text>
-            <EquipoGroupTable title="KONECRANES" equipos={EQUIPOS_GRUPO_1_KONECRANES} />
-            <EquipoGroupTable title="ABUS" equipos={EQUIPOS_GRUPO_2_ABUS} />
-            <EquipoGroupTable title="R&M / INAMAR / TBM / WORLDHOIST / INAMAR-VAPOR" equipos={EQUIPOS_GRUPO_3_VARIOS} />
-            <EquipoGroupTable title="INAMAR/VAPOR" equipos={EQUIPOS_GRUPO_4_INAMAR_VAPOR} />
-          </View>
-        )}
+<!-- EMPRESA -->
+<div class="sec-bold">INFORMACIÓN EMPRESA PARTICIPANTE</div>
+<table class="info">
+  <tr><td class="lbl">NOMBRE:</td><td>${esc(d.empresa_nombre)}</td></tr>
+  <tr><td class="lbl">RUT:</td><td>${esc(d.empresa_rut)}</td></tr>
+</table>
 
-        {/* ── FECHAS ───────────────────────────────────────────────── */}
-        <View style={s.fechasTable}>
-          <InfoRow label="FECHA DE EMISIÓN:" value={fechaEmision} last={!showVencimiento} />
-          {showVencimiento && (
-            <InfoRow label="FECHA DE VENCIMIENTO:" value={fechaVencimiento || "N/A"} last />
-          )}
-        </View>
+<!-- CURSO -->
+<div class="sec-normal">INFORMACIÓN DE CURSO</div>
+<table class="info">
+  <tr><td class="lbl">NOMBRE:</td><td>${esc(d.nombre_curso)}</td></tr>
+  <tr><td class="lbl">FECHA INICIO:</td><td>${esc(d.fecha_inicio)}</td></tr>
+  <tr><td class="lbl">FECHA TÉRMINO:</td><td>${esc(d.fecha_termino)}</td></tr>
+  <tr><td class="lbl">LUGAR:</td><td>${esc(d.lugar)}</td></tr>
+  <tr><td class="lbl">INSTRUCTOR:</td><td>${esc(d.instructor)}</td></tr>
+</table>
 
-        {/* ── LEGAL TEXT (bold) ─────────────────────────────────────── */}
-        <Text style={s.legalText}>
-          Yo, Alexander Quijada, Gerente General de OTEC Capacitaciones Q&C Spa,
-          Rut 77.520.118-5, certifico que los datos consignados en este documento son fidedignos.
-        </Text>
+<!-- PARTICIPANTE -->
+<div class="sec-normal">INFORMACIÓN PARTICIPANTE</div>
+<table class="info">
+  <tr><td class="lbl">NOMBRE:</td><td>${esc(d.nombre_participante)}</td></tr>
+  <tr><td class="lbl">RUT:</td><td>${esc(d.rut_participante)}</td></tr>
+</table>
 
-        {/* ── FOOTER 3 COLUMNS ─────────────────────────────────────── */}
-        <View style={s.footerRow}>
-          {/* Left: label then QR */}
-          <View style={s.footerLeft}>
-            <Text style={s.qrLabel}>Consulta tu certificado:</Text>
-            <Image src={qrDataUrl} style={s.qrImg} />
-          </View>
+${isSoldadura ? `
+<!-- PROBETAS INFO -->
+<div class="sec-normal">INFORMACIÓN DE PROBETAS</div>
+<table class="info">
+  <tr><td class="lbl">ESPESOR/DIÁMETRO DE TUBERÍA:</td><td>${esc(d.espesor_diametro)}</td></tr>
+  <tr><td class="lbl">APLICACIÓN DE SOLDADURA:</td><td>${esc(d.aplicacion_soldadura)}</td></tr>
+</table>
 
-          {/* Center: firma + line + name + title */}
-          <View style={s.footerCenter}>
-            <Image src={firmaSrc} style={s.firmaImg} />
-            <View style={s.firmaLine} />
-            <Text style={s.firmaName}>Alexander Quijada</Text>
-            <Text style={s.firmaTitle}>Gerente General</Text>
-          </View>
+<!-- FOTOS PROBETAS -->
+<div class="sec-normal">FOTOS DE PROBETAS</div>
+<div class="fotos-wrap">
+  ${d.foto_probeta_1 ? `<img src="${d.foto_probeta_1}" alt="Probeta 1"/>` : '<div class="foto-placeholder"></div>'}
+  ${d.foto_probeta_2 ? `<img src="${d.foto_probeta_2}" alt="Probeta 2"/>` : '<div class="foto-placeholder"></div>'}
+</div>
 
-          {/* Right: label then logo */}
-          <View style={s.footerRight}>
-            <Text style={s.footerOrgLabel}>ORGANISMO TÉCNICO</Text>
-            <Image src={logoSrc} style={s.footerLogoImg} />
-          </View>
-        </View>
+<!-- OBSERVACIONES -->
+<div class="sec-bold">OBSERVACIONES</div>
+<div class="obs-box">${esc(d.observaciones ?? "")}</div>
+` : ""}
 
-        {/* ── PAGE FOOTER ──────────────────────────────────────────── */}
-        <Text style={s.pageFooter}>
-          {"Empresa certificada por NCH 2728:2015 por el organismo ICONTEC\n"}
-          {"Reconocida por SENCE, bajo Resolución 2872\n"}
-          {"Página web www.formacap.cl; teléfono de contacto +56 9 73267783"}
-        </Text>
+${showEquipos ? `
+<!-- EQUIPOS PUENTE GRÚA -->
+<div class="sec-bold">EQUIPOS PUENTE GRÚA</div>
+<table class="equipos">
+  <tr>
+    <td class="eq-lbl">MARCA</td>
+    <td>KONECRANES</td><td>KONECRANES</td><td>KONECRANES</td><td>KONECRANES</td><td>KONECRANES</td><td>KONECRANES</td><td>KONECRANES</td>
+  </tr><tr>
+    <td class="eq-lbl">MODELO</td>
+    <td>SMO912/XL708</td><td>SMO912/XL708</td><td>XL7712/XL403</td><td>XL708/XL403</td><td>CTX704</td><td>SMO912E/CXT704</td><td>TAG370XL Km-0</td>
+  </tr><tr>
+    <td class="eq-lbl">CAPACIDAD</td>
+    <td>65/27 Ton</td><td>87/27 Ton</td><td>35/5 Ton</td><td>20/5 Ton</td><td>35 Ton</td><td>85/35 Ton</td><td>10 Ton</td>
+  </tr>
+</table>
+<table class="equipos" style="margin-top:2pt">
+  <tr>
+    <td class="eq-lbl">MARCA</td>
+    <td>ABUS</td><td>ABUS</td><td>ABUS</td><td>ABUS</td><td>ABUS</td><td>ABUS</td><td>ABUS</td><td>ABUS</td><td>ABUS</td>
+  </tr><tr>
+    <td class="eq-lbl">MODELO</td>
+    <td>XL708/XL403</td><td>GM5000</td><td>GM5000</td><td>GM200</td><td>GM6200L</td><td>GM6200L</td><td>GM532H6/GM3050L</td><td>GM3060L6</td><td>TK712</td>
+  </tr><tr>
+    <td class="eq-lbl">CAPACIDAD</td>
+    <td>15/5 Ton</td><td>25/5 Ton</td><td>0.5 Ton</td><td>2.5 Ton</td><td>20 Ton</td><td>12,5 Ton</td><td>30/5 Ton</td><td>5 Ton</td><td>3.2 Ton</td>
+  </tr>
+</table>
+<table class="equipos" style="margin-top:2pt">
+  <tr>
+    <td class="eq-lbl">MARCA</td>
+    <td>R&amp;M</td><td>INAMAR</td><td>TBM</td><td>WORLDHOIST/FIEFR</td><td>WORLDHOIST/FIEFR</td><td>WORLDHOIST/FIEFR</td><td>INAMAR/VAPOR</td><td>INAMAR/VAPOR</td>
+  </tr><tr>
+    <td class="eq-lbl">MODELO</td>
+    <td>SX608</td><td>Biviga</td><td>PORTICO 3500</td><td>K2102</td><td>K3102</td><td>K4104</td><td>GM7000.125000</td><td>GM7000.90000</td>
+  </tr><tr>
+    <td class="eq-lbl">CAPACIDAD</td>
+    <td>40 Ton</td><td>30/5 Ton</td><td>2 TON</td><td>1 TON</td><td>2 TON</td><td>12.5 TON</td><td>125/20 Ton</td><td>90/15 Ton</td>
+  </tr>
+</table>
+<table class="equipos" style="margin-top:2pt">
+  <tr>
+    <td class="eq-lbl">MARCA</td><td>INAMAR/VAPOR</td><td>INAMAR/VAPOR</td>
+  </tr><tr>
+    <td class="eq-lbl">MODELO</td><td>GM6000.8000</td><td>GM800.3200</td>
+  </tr><tr>
+    <td class="eq-lbl">CAPACIDAD</td><td>7.5 Ton</td><td>3.2 Ton</td>
+  </tr>
+</table>
+` : ""}
 
-      </Page>
-    </Document>
-  )
+<!-- NOTAS -->
+<table class="notas">
+  <tr class="hrow">
+    <th colspan="${showSenales ? 3 : 2}">NOTAS</th>
+    <th>ASISTENCIA</th>
+    <th>N° REGISTRO</th>
+    <th>ESTADO</th>
+  </tr>
+  <tr class="hrow">
+    <th>TEORÍA</th>
+    ${showSenales ? "<th>SEÑALES</th>" : ""}
+    <th>PRÁCTICA</th>
+    <th></th><th></th><th></th>
+  </tr>
+  <tr>
+    <td>${esc(d.nota_teoria)}</td>
+    ${showSenales ? `<td>${esc(d.senales)}</td>` : ""}
+    <td>${esc(d.nota_practica)}</td>
+    <td>${esc(d.asistencia_pct)}${d.asistencia_pct ? "%" : ""}</td>
+    <td>${esc(d.nro_registro)}</td>
+    <td><b>${esc(d.estado)}</b></td>
+  </tr>
+</table>
+
+<!-- FECHAS -->
+<table class="fechas">
+  <tr><td class="lbl">FECHA DE EMISIÓN:</td><td>${esc(d.fecha_emision)}</td></tr>
+  ${d.fecha_vencimiento ? `<tr><td class="lbl">FECHA DE VENCIMIENTO:</td><td>${esc(d.fecha_vencimiento)}</td></tr>` : ""}
+</table>
+
+<!-- LEGAL -->
+<div class="legal">
+  Yo, Alexander Quijada, Gerente General de OTEC Capacitaciones Q&amp;C Spa, Rut 77.520.118-5,
+  certifico que los datos consignados en este documento son fidedignos.
+</div>
+
+<!-- FOOTER -->
+<table class="footer">
+  <tr>
+    <td>
+      <div class="qr-label">Consulta tu certificado:</div>
+      <img class="qr" src="${d.qrBase64}" alt="QR"/>
+    </td>
+    <td>
+      ${d.firmaBase64 ? `<img class="firma" src="${d.firmaBase64}" alt="Firma"/>` : ""}
+      <div class="firma-line">
+        <div style="font-weight:bold;font-size:9pt">Alexander Quijada</div>
+        <div style="font-size:8pt">Gerente General</div>
+      </div>
+    </td>
+    <td>
+      <div class="org-label">ORGANISMO TÉCNICO</div>
+      ${d.logoBase64 ? `<img class="logo-footer" src="${d.logoBase64}" alt="Formacap"/>` : ""}
+    </td>
+  </tr>
+</table>
+
+<!-- PIE -->
+<div class="pie">
+  Empresa certificada por <b>NCH 2728:2015</b> por el organismo <b>ICONTEC</b><br/>
+  <b>Reconocida por SENCE, bajo Resolución 2872</b><br/>
+  Página web www.formacap.cl; teléfono de contacto +56 9 73267783
+</div>
+
+</body>
+</html>`
 }

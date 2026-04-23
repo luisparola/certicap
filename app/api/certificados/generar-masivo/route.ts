@@ -3,8 +3,6 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { generarCodigo } from "@/lib/certificado"
-import { generarQR } from "@/lib/qr"
-import { renderCertificadoPDF } from "@/lib/pdf"
 
 export async function POST(request: Request) {
   try {
@@ -29,24 +27,12 @@ export async function POST(request: Request) {
       try {
         const codigo = generarCodigo()
         const verificarUrl = `${baseUrl}/verificar/${codigo}`
-        const qrDataUrl = await generarQR(verificarUrl)
         const fechaEmision = new Date()
         let fechaVencimiento: Date | null = null
         if (actividad.tipo_certificado === "PUENTE_GRUA") {
           fechaVencimiento = new Date(fechaEmision)
           fechaVencimiento.setFullYear(fechaVencimiento.getFullYear() + 1)
         }
-        const certData = {
-          id: "temp", participanteId: participante.id, codigo,
-          fecha_emision: fechaEmision, fecha_vencimiento: fechaVencimiento,
-          foto_probeta_1: null, foto_probeta_2: null, qr_url: verificarUrl,
-        }
-
-        await renderCertificadoPDF({
-          tipo: actividad.tipo_certificado, participante, actividad,
-          certificado: certData, qrDataUrl,
-        })
-
         await prisma.certificado.create({
           data: {
             participanteId: participante.id, codigo, pdf_url: null,
