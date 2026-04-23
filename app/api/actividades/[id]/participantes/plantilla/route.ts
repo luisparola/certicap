@@ -12,10 +12,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const actividad = await prisma.actividad.findFirst({ where: { id: params.id, tenantId } })
     if (!actividad) return NextResponse.json({ error: "No encontrada" }, { status: 404 })
 
-    const baseColumns = ["NOMBRE", "RUT", "NOTA_TEORIA", "NOTA_PRACTICA", "ASISTENCIA_PCT", "NRO_REGISTRO", "ESTADO"]
+    const baseColumns = ["nombre_participante", "rut_participante", "nota_teoria", "nota_practica", "asistencia_pct", "nro_registro", "estado"]
     let columns = [...baseColumns]
     if (actividad.tipo_certificado === "PUENTE_GRUA") {
-      columns = [...columns, "MARCA_EQUIPO", "MODELO_EQUIPO", "CAPACIDAD_EQUIPO", "SENALES"]
+      columns = [...columns, "marca_equipo", "modelo_equipo", "capacidad_equipo", "senales"]
     }
 
     const wb = XLSX.utils.book_new()

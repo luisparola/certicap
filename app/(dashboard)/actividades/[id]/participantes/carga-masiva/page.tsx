@@ -38,9 +38,13 @@ export default function CargaMasivaPage() {
     window.open(`/api/actividades/${params.id}/participantes/plantilla`, "_blank")
   }
 
-  const get = (row: Record<string, any>, key: string): any => {
-    const found = Object.keys(row).find((k) => k.trim().toLowerCase() === key.toLowerCase())
-    return found ? row[found] : undefined
+  // Try multiple alias keys (case-insensitive) — supports both naming conventions
+  const gf = (row: Record<string, any>, ...keys: string[]): any => {
+    for (const key of keys) {
+      const found = Object.keys(row).find((k) => k.trim().toLowerCase() === key.toLowerCase())
+      if (found !== undefined && row[found] !== "" && row[found] != null) return row[found]
+    }
+    return undefined
   }
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,14 +66,14 @@ export default function CargaMasivaPage() {
         return obj
       })
       console.log("Objeto mapeado:", json[0])
-      if (json[0]) console.log("get NOMBRE:", get(json[0], "NOMBRE"))
       const validEstados = ["APROBADO", "REPROBADO", "PENDIENTE"]
       const parsed: ParsedRow[] = json.map((row) => {
         const errors: string[] = []
-        if (!get(row, "NOMBRE")) errors.push("Nombre requerido")
-        if (!get(row, "RUT")) errors.push("RUT requerido")
-        else if (!validarRut(String(get(row, "RUT")))) errors.push("RUT invalido")
-        const estado = get(row, "ESTADO")
+        if (!gf(row, "nombre_participante", "NOMBRE", "nombre")) errors.push("Nombre requerido")
+        const rut = gf(row, "rut_participante", "RUT", "rut")
+        if (!rut) errors.push("RUT requerido")
+        else if (!validarRut(String(rut))) errors.push("RUT invalido")
+        const estado = gf(row, "estado", "ESTADO")
         if (estado && !validEstados.includes(String(estado).toUpperCase())) errors.push("Estado invalido")
         return { data: row, valid: errors.length === 0, errors }
       })
@@ -86,16 +90,17 @@ export default function CargaMasivaPage() {
     setImporting(true)
     try {
       const participantes = validRows.map((r) => ({
-        nombre: get(r.data, "NOMBRE"), rut: String(get(r.data, "RUT")),
-        nota_teoria: get(r.data, "NOTA_TEORIA") || null,
-        nota_practica: get(r.data, "NOTA_PRACTICA") || null,
-        asistencia_pct: get(r.data, "ASISTENCIA_PCT") || null,
-        nro_registro: get(r.data, "NRO_REGISTRO") ? String(get(r.data, "NRO_REGISTRO")) : null,
-        estado: String(get(r.data, "ESTADO") || "PENDIENTE").toUpperCase(),
-        marca_equipo: get(r.data, "MARCA_EQUIPO") || null,
-        modelo_equipo: get(r.data, "MODELO_EQUIPO") || null,
-        capacidad_equipo: get(r.data, "CAPACIDAD_EQUIPO") || null,
-        senales: get(r.data, "SENALES") || null,
+        nombre: gf(r.data, "nombre_participante", "NOMBRE", "nombre"),
+        rut: String(gf(r.data, "rut_participante", "RUT", "rut")),
+        nota_teoria: gf(r.data, "nota_teoria", "NOTA_TEORIA") || null,
+        nota_practica: gf(r.data, "nota_practica", "NOTA_PRACTICA") || null,
+        asistencia_pct: gf(r.data, "asistencia_pct", "ASISTENCIA_PCT") || null,
+        nro_registro: gf(r.data, "nro_registro", "NRO_REGISTRO") ? String(gf(r.data, "nro_registro", "NRO_REGISTRO")) : null,
+        estado: String(gf(r.data, "estado", "ESTADO") || "PENDIENTE").toUpperCase(),
+        marca_equipo: gf(r.data, "marca_equipo", "MARCA_EQUIPO") || null,
+        modelo_equipo: gf(r.data, "modelo_equipo", "MODELO_EQUIPO") || null,
+        capacidad_equipo: gf(r.data, "capacidad_equipo", "CAPACIDAD_EQUIPO") || null,
+        senales: gf(r.data, "senales", "SENALES") || null,
       }))
       const res = await fetch(`/api/actividades/${params.id}/participantes/bulk`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ participantes }),
@@ -149,9 +154,9 @@ export default function CargaMasivaPage() {
                   {rows.map((row, i) => (
                     <TableRow key={i} className={`border-white/5 ${row.valid ? "" : "bg-red-500/5"}`}>
                       <TableCell className="text-gray-400">{i + 1}</TableCell>
-                      <TableCell className="text-white">{get(row.data, "NOMBRE") || "-"}</TableCell>
-                      <TableCell className="text-gray-300">{get(row.data, "RUT") || "-"}</TableCell>
-                      <TableCell className="text-gray-300">{get(row.data, "ESTADO") || "PENDIENTE"}</TableCell>
+                      <TableCell className="text-white">{gf(row.data, "nombre_participante", "NOMBRE", "nombre") || "-"}</TableCell>
+                      <TableCell className="text-gray-300">{gf(row.data, "rut_participante", "RUT", "rut") || "-"}</TableCell>
+                      <TableCell className="text-gray-300">{gf(row.data, "estado", "ESTADO") || "PENDIENTE"}</TableCell>
                       <TableCell>{row.valid ? <Badge className="bg-emerald-500/20 text-emerald-400">OK</Badge> : <span className="text-xs text-red-400">{row.errors.join(", ")}</span>}</TableCell>
                     </TableRow>
                   ))}
