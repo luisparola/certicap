@@ -5,12 +5,33 @@ import { useParams } from "next/navigation"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { CheckCircle, XCircle, AlertTriangle, Loader2, ShieldCheck } from "lucide-react"
+import { CheckCircle, XCircle, AlertTriangle, Loader2, ShieldCheck, Download } from "lucide-react"
 
 const TIPO_LABELS: Record<string, string> = {
   COMPETENCIAS: "Competencias", PUENTE_GRUA: "Puente Grua",
   RIGGER: "Rigger", SOLDADURA: "Soldadura",
+}
+
+const ESTADO_LABELS: Record<string, string> = {
+  APROBADO: "Aprobado", REPROBADO: "Reprobado", PENDIENTE: "Pendiente",
+}
+
+const ESTADO_COLORS: Record<string, string> = {
+  APROBADO: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+  REPROBADO: "bg-red-500/20 text-red-400 border-red-500/30",
+  PENDIENTE: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+}
+
+function DataRow({ label, value }: { label: string; value: React.ReactNode }) {
+  if (value === null || value === undefined || value === "") return null
+  return (
+    <div className="flex justify-between items-start">
+      <span className="text-sm text-gray-400">{label}</span>
+      <span className="text-sm text-white font-medium text-right">{value}</span>
+    </div>
+  )
 }
 
 export default function VerificarPage() {
@@ -18,6 +39,7 @@ export default function VerificarPage() {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     fetch(`/api/verificar/${params.codigo}`)
@@ -29,6 +51,24 @@ export default function VerificarPage() {
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
   }, [params.codigo])
+
+  const descargarPDF = async () => {
+    if (!data?.certificado_id) return
+    setDownloading(true)
+    try {
+      const res = await fetch(`/api/certificados/${data.certificado_id}/pdf`)
+      if (!res.ok) return
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `certificado-${data.codigo}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -43,7 +83,6 @@ export default function VerificarPage() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#E8541A]/8 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-lg animate-fade-in">
-        {/* Logo */}
         <div className="flex justify-center mb-6">
           <Image src="/logo-formacap.png" alt="Formacap" width={180} height={60} className="h-14 w-auto" />
         </div>
@@ -83,35 +122,53 @@ export default function VerificarPage() {
 
               <Separator className="bg-white/5" />
 
-              {/* Data rows */}
+              {/* Participante */}
               <div className="space-y-3">
-                <div className="flex justify-between items-start">
-                  <span className="text-sm text-gray-400">Participante</span>
-                  <span className="text-sm text-white font-medium text-right">{data.nombre}</span>
-                </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-sm text-gray-400">RUT</span>
-                  <span className="text-sm text-gray-300 font-mono">{data.rut_parcial}</span>
-                </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-sm text-gray-400">Curso</span>
-                  <span className="text-sm text-white text-right">{data.curso}</span>
-                </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-sm text-gray-400">Tipo</span>
-                  <Badge className="bg-[#E8541A]/20 text-[#E8541A] border-[#E8541A]/30 border">{TIPO_LABELS[data.tipo]}</Badge>
-                </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-sm text-gray-400">Empresa</span>
-                  <span className="text-sm text-white text-right">{data.empresa}</span>
-                </div>
+                <DataRow label="Participante" value={data.nombre} />
+                <DataRow label="RUT" value={<span className="font-mono">{data.rut_parcial}</span>} />
+                <DataRow label="Curso" value={data.curso} />
+                <DataRow label="Tipo" value={<Badge className={`bg-[#E8541A]/20 text-[#E8541A] border-[#E8541A]/30 border`}>{TIPO_LABELS[data.tipo]}</Badge>} />
+                <DataRow label="Empresa" value={data.empresa} />
+                {data.nro_registro && <DataRow label="N° de Registro" value={<span className="font-mono">{data.nro_registro}</span>} />}
+                {data.estado && (
+                  <div className="flex justify-between items-start">
+                    <span className="text-sm text-gray-400">Estado</span>
+                    <Badge className={`border ${ESTADO_COLORS[data.estado] ?? ""}`}>{ESTADO_LABELS[data.estado] ?? data.estado}</Badge>
+                  </div>
+                )}
+              </div>
 
-                <Separator className="bg-white/5" />
+              <Separator className="bg-white/5" />
 
-                <div className="flex justify-between items-start">
-                  <span className="text-sm text-gray-400">Fecha Emision</span>
-                  <span className="text-sm text-white">{new Date(data.fecha_emision).toLocaleDateString("es-CL")}</span>
-                </div>
+              {/* Evaluacion */}
+              {(data.nota_teoria != null || data.nota_practica != null || data.asistencia_pct != null) && (
+                <>
+                  <div className="space-y-3">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">Evaluacion</p>
+                    {data.nota_teoria != null && <DataRow label="Nota Teoria" value={data.nota_teoria.toFixed(1)} />}
+                    {data.nota_practica != null && <DataRow label="Nota Practica" value={data.nota_practica.toFixed(1)} />}
+                    {data.asistencia_pct != null && <DataRow label="Asistencia" value={`${data.asistencia_pct.toFixed(0)}%`} />}
+                  </div>
+                  <Separator className="bg-white/5" />
+                </>
+              )}
+
+              {/* Equipo (PUENTE_GRUA) */}
+              {data.tipo === "PUENTE_GRUA" && (data.marca_equipo || data.modelo_equipo || data.capacidad_equipo) && (
+                <>
+                  <div className="space-y-3">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">Equipo</p>
+                    <DataRow label="Marca" value={data.marca_equipo} />
+                    <DataRow label="Modelo" value={data.modelo_equipo} />
+                    <DataRow label="Capacidad" value={data.capacidad_equipo} />
+                  </div>
+                  <Separator className="bg-white/5" />
+                </>
+              )}
+
+              {/* Fechas */}
+              <div className="space-y-3">
+                <DataRow label="Fecha Emision" value={new Date(data.fecha_emision).toLocaleDateString("es-CL")} />
                 {data.fecha_vencimiento && (
                   <div className="flex justify-between items-start">
                     <span className="text-sm text-gray-400">Fecha Vencimiento</span>
@@ -121,6 +178,18 @@ export default function VerificarPage() {
                   </div>
                 )}
               </div>
+
+              <Separator className="bg-white/5" />
+
+              {/* Descargar PDF */}
+              <Button
+                onClick={descargarPDF}
+                disabled={downloading}
+                className="w-full bg-[#E8541A] hover:bg-[#E8541A]/90 text-white"
+              >
+                {downloading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+                Descargar Certificado
+              </Button>
             </CardContent>
 
             {/* Footer */}

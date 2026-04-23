@@ -29,7 +29,6 @@ export async function GET(
       return NextResponse.json({ found: false }, { status: 404 })
     }
 
-    // Solo devolver datos publicos (sin RUT completo ni notas)
     const rut = certificado.participante.rut
     const rutParcial = rut.length > 4 ? "****" + rut.slice(-4) : "****"
 
@@ -38,17 +37,31 @@ export async function GET(
       ? new Date(certificado.fecha_vencimiento) < ahora
       : false
 
+    const p = certificado.participante
+    const tipo = p.actividad.tipo_certificado
+
     return NextResponse.json({
       found: true,
-      nombre: certificado.participante.nombre,
+      certificado_id: certificado.id,
+      codigo: certificado.codigo,
+      nombre: p.nombre,
       rut_parcial: rutParcial,
-      curso: certificado.participante.actividad.nombre_curso,
-      tipo: certificado.participante.actividad.tipo_certificado,
-      empresa: certificado.participante.actividad.empresa_nombre,
+      curso: p.actividad.nombre_curso,
+      tipo,
+      empresa: p.actividad.empresa_nombre,
       fecha_emision: certificado.fecha_emision,
       fecha_vencimiento: certificado.fecha_vencimiento,
-      codigo: certificado.codigo,
       estado_certificado: vencido ? "VENCIDO" : "VALIDO",
+      nota_teoria: p.nota_teoria,
+      nota_practica: p.nota_practica,
+      asistencia_pct: p.asistencia_pct,
+      nro_registro: p.nro_registro,
+      estado: p.estado,
+      ...(tipo === "PUENTE_GRUA" && {
+        marca_equipo: p.marca_equipo,
+        modelo_equipo: p.modelo_equipo,
+        capacidad_equipo: p.capacidad_equipo,
+      }),
     })
   } catch (error) {
     console.error("Error verificando:", error)
