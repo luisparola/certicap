@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { useState } from "react"
 
 const navItems = [
@@ -101,9 +102,12 @@ export function Sidebar() {
       {/* User section */}
       <div className="p-4">
         {!collapsed && session?.user && (
-          <div className="mb-3 px-1">
-            <p className="text-sm font-medium text-white truncate">{session.user.name}</p>
-            <p className="text-xs text-gray-500 truncate">{session.user.email}</p>
+          <div className="mb-3 px-1 flex items-center justify-between">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-white truncate">{session.user.name}</p>
+              <p className="text-xs text-gray-500 truncate">{session.user.email}</p>
+            </div>
+            <ThemeToggle />
           </div>
         )}
         <Button
