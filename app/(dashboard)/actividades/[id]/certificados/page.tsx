@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { ArrowLeft, Award, Download, Loader2, FileDown, Zap, Upload, X } from "lucide-react"
+import { ArrowLeft, Award, Download, Loader2, FileDown, Zap, Upload, X, Trash2 } from "lucide-react"
 
 export default function CertificadosActividadPage() {
   const params = useParams()
@@ -21,7 +21,7 @@ export default function CertificadosActividadPage() {
   const [generatingId, setGeneratingId] = useState("")
   const [progress, setProgress] = useState(0)
 
-  // Probetas dialog state
+  // Probetas dialog
   const [probetasOpen, setProbetasOpen] = useState(false)
   const [probetasPart, setProbetasPart] = useState<any>(null)
   const [foto1, setFoto1] = useState<File | null>(null)
@@ -31,6 +31,10 @@ export default function CertificadosActividadPage() {
   const [generatingProbetas, setGeneratingProbetas] = useState(false)
   const input1Ref = useRef<HTMLInputElement>(null)
   const input2Ref = useRef<HTMLInputElement>(null)
+
+  // Delete certificate dialog
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; cert: any | null; nombre: string }>({ open: false, cert: null, nombre: "" })
+  const [deleting, setDeleting] = useState(false)
 
   const fetchData = async () => {
     const res = await fetch(`/api/actividades/${params.id}`)
@@ -44,9 +48,7 @@ export default function CertificadosActividadPage() {
   const downloadBlob = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
-    a.href = url
-    a.download = filename
-    a.click()
+    a.href = url; a.download = filename; a.click()
     URL.revokeObjectURL(url)
   }
 
@@ -57,28 +59,20 @@ export default function CertificadosActividadPage() {
   ) => {
     if (!file) return
     if (!["image/jpeg", "image/png"].includes(file.type)) {
-      toast({ variant: "destructive", title: "Formato invalido", description: "Solo JPG o PNG" })
-      return
+      toast({ variant: "destructive", title: "Formato invalido", description: "Solo JPG o PNG" }); return
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast({ variant: "destructive", title: "Archivo muy grande", description: "Max 5MB" })
-      return
+      toast({ variant: "destructive", title: "Archivo muy grande", description: "Max 5MB" }); return
     }
-    setFoto(file)
-    setPreview(URL.createObjectURL(file))
+    setFoto(file); setPreview(URL.createObjectURL(file))
   }
 
   const openProbetasDialog = (participante: any) => {
-    setProbetasPart(participante)
-    setFoto1(null); setFoto2(null)
-    setPreview1(null); setPreview2(null)
-    setProbetasOpen(true)
+    setProbetasPart(participante); setFoto1(null); setFoto2(null)
+    setPreview1(null); setPreview2(null); setProbetasOpen(true)
   }
 
-  const closeProbetasDialog = () => {
-    setProbetasOpen(false)
-    setProbetasPart(null)
-  }
+  const closeProbetasDialog = () => { setProbetasOpen(false); setProbetasPart(null) }
 
   const generar = async (participanteId: string) => {
     setGeneratingId(participanteId)
@@ -112,8 +106,7 @@ export default function CertificadosActividadPage() {
       const codigo = res.headers.get("X-Certificado-Codigo") ?? "certificado"
       downloadBlob(blob, `certificado-${codigo}.pdf`)
       toast({ title: "Certificado generado", description: "PDF con fotos de probetas descargado." })
-      closeProbetasDialog()
-      fetchData()
+      closeProbetasDialog(); fetchData()
     } catch (err: any) {
       toast({ variant: "destructive", title: "Error", description: err.message || "Error al generar" })
     } finally { setGeneratingProbetas(false) }
@@ -122,8 +115,21 @@ export default function CertificadosActividadPage() {
   const descargarPDF = async (certificadoId: string, codigo: string) => {
     const res = await fetch(`/api/certificados/${certificadoId}/pdf`)
     if (!res.ok) { toast({ variant: "destructive", title: "Error", description: "No se pudo descargar el PDF" }); return }
-    const blob = await res.blob()
-    downloadBlob(blob, `certificado-${codigo}.pdf`)
+    downloadBlob(await res.blob(), `certificado-${codigo}.pdf`)
+  }
+
+  const handleDeleteCert = async () => {
+    if (!deleteDialog.cert) return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/certificados/${deleteDialog.cert.id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error("Error")
+      toast({ title: "Certificado eliminado", description: "El participante quedó en estado Pendiente." })
+      setDeleteDialog({ open: false, cert: null, nombre: "" })
+      fetchData()
+    } catch {
+      toast({ variant: "destructive", title: "Error", description: "No se pudo eliminar el certificado." })
+    } finally { setDeleting(false) }
   }
 
   const generarMasivo = async () => {
@@ -185,6 +191,7 @@ export default function CertificadosActividadPage() {
                       <div className="flex gap-1">
                         <Button variant="ghost" size="sm" className="text-gray-400 hover:text-[#E8541A]" onClick={() => descargarPDF(p.certificado.id, p.certificado.codigo)}><Download className="h-4 w-4" /></Button>
                         <Link href={`/verificar/${p.certificado.codigo}`} target="_blank"><Button variant="ghost" size="sm" className="text-gray-400 hover:text-blue-400">Ver</Button></Link>
+                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-red-400" onClick={() => setDeleteDialog({ open: true, cert: p.certificado, nombre: p.nombre })}><Trash2 className="h-4 w-4" /></Button>
                       </div>
                     ) : (
                       <Button size="sm" variant="ghost"
@@ -206,86 +213,59 @@ export default function CertificadosActividadPage() {
       {/* Probetas Dialog */}
       <Dialog open={probetasOpen} onOpenChange={(open) => { if (!open) closeProbetasDialog() }}>
         <DialogContent className="bg-[#1A1A1A] border-white/10 text-white max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-white">Fotos de Probetas — {probetasPart?.nombre}</DialogTitle>
-          </DialogHeader>
-
+          <DialogHeader><DialogTitle className="text-white">Fotos de Probetas — {probetasPart?.nombre}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
-            {/* Foto 1 */}
             <div className="space-y-2">
               <p className="text-sm text-gray-400">Foto 1 <span className="text-red-400">*</span></p>
-              <input
-                ref={input1Ref}
-                type="file"
-                accept="image/jpeg,image/png"
-                className="hidden"
-                onChange={(e) => handleFotoChange(e.target.files?.[0] ?? null, setFoto1, setPreview1)}
-              />
+              <input ref={input1Ref} type="file" accept="image/jpeg,image/png" className="hidden" onChange={(e) => handleFotoChange(e.target.files?.[0] ?? null, setFoto1, setPreview1)} />
               {preview1 ? (
                 <div className="relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={preview1} alt="Foto 1" className="w-full h-40 object-cover rounded-lg border border-white/10" />
-                  <button
-                    onClick={() => { setFoto1(null); setPreview1(null) }}
-                    className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-black/80"
-                  >
-                    <X className="h-4 w-4 text-white" />
-                  </button>
+                  <button onClick={() => { setFoto1(null); setPreview1(null) }} className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-black/80"><X className="h-4 w-4 text-white" /></button>
                 </div>
               ) : (
-                <button
-                  onClick={() => input1Ref.current?.click()}
-                  className="w-full h-32 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-[#E8541A]/50 hover:bg-[#E8541A]/5 transition-colors"
-                >
-                  <Upload className="h-6 w-6 text-gray-400" />
-                  <span className="text-sm text-gray-400">Subir foto 1 (JPG/PNG, max 5MB)</span>
+                <button onClick={() => input1Ref.current?.click()} className="w-full h-32 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-[#E8541A]/50 hover:bg-[#E8541A]/5 transition-colors">
+                  <Upload className="h-6 w-6 text-gray-400" /><span className="text-sm text-gray-400">Subir foto 1 (JPG/PNG, max 5MB)</span>
                 </button>
               )}
             </div>
-
-            {/* Foto 2 */}
             <div className="space-y-2">
               <p className="text-sm text-gray-400">Foto 2 <span className="text-red-400">*</span></p>
-              <input
-                ref={input2Ref}
-                type="file"
-                accept="image/jpeg,image/png"
-                className="hidden"
-                onChange={(e) => handleFotoChange(e.target.files?.[0] ?? null, setFoto2, setPreview2)}
-              />
+              <input ref={input2Ref} type="file" accept="image/jpeg,image/png" className="hidden" onChange={(e) => handleFotoChange(e.target.files?.[0] ?? null, setFoto2, setPreview2)} />
               {preview2 ? (
                 <div className="relative">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={preview2} alt="Foto 2" className="w-full h-40 object-cover rounded-lg border border-white/10" />
-                  <button
-                    onClick={() => { setFoto2(null); setPreview2(null) }}
-                    className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-black/80"
-                  >
-                    <X className="h-4 w-4 text-white" />
-                  </button>
+                  <button onClick={() => { setFoto2(null); setPreview2(null) }} className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-black/80"><X className="h-4 w-4 text-white" /></button>
                 </div>
               ) : (
-                <button
-                  onClick={() => input2Ref.current?.click()}
-                  className="w-full h-32 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-[#E8541A]/50 hover:bg-[#E8541A]/5 transition-colors"
-                >
-                  <Upload className="h-6 w-6 text-gray-400" />
-                  <span className="text-sm text-gray-400">Subir foto 2 (JPG/PNG, max 5MB)</span>
+                <button onClick={() => input2Ref.current?.click()} className="w-full h-32 border-2 border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-[#E8541A]/50 hover:bg-[#E8541A]/5 transition-colors">
+                  <Upload className="h-6 w-6 text-gray-400" /><span className="text-sm text-gray-400">Subir foto 2 (JPG/PNG, max 5MB)</span>
                 </button>
               )}
             </div>
           </div>
-
           <DialogFooter className="gap-2">
-            <Button variant="ghost" onClick={closeProbetasDialog} disabled={generatingProbetas} className="text-gray-400">
-              Cancelar
-            </Button>
-            <Button
-              onClick={generarConFotos}
-              disabled={!foto1 || !foto2 || generatingProbetas}
-              className="bg-[#E8541A] hover:bg-[#E8541A]/90"
-            >
+            <Button variant="ghost" onClick={closeProbetasDialog} disabled={generatingProbetas} className="text-gray-400">Cancelar</Button>
+            <Button onClick={generarConFotos} disabled={!foto1 || !foto2 || generatingProbetas} className="bg-[#E8541A] hover:bg-[#E8541A]/90">
               {generatingProbetas ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Generando...</> : "Generar Certificado"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Certificate Dialog */}
+      <Dialog open={deleteDialog.open} onOpenChange={(open) => { if (!open) setDeleteDialog({ open: false, cert: null, nombre: "" }) }}>
+        <DialogContent className="bg-[#1A1A1A] border-white/10 text-white max-w-md">
+          <DialogHeader><DialogTitle className="text-white">Eliminar Certificado</DialogTitle></DialogHeader>
+          <p className="text-gray-300 text-sm">
+            ¿Eliminar el certificado de <span className="font-semibold text-white">{deleteDialog.nombre}</span>? El participante quedará en estado Pendiente.
+          </p>
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={() => setDeleteDialog({ open: false, cert: null, nombre: "" })} disabled={deleting} className="text-gray-400">Cancelar</Button>
+            <Button onClick={handleDeleteCert} disabled={deleting} className="bg-red-600 hover:bg-red-700 text-white">
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Trash2 className="h-4 w-4 mr-2" />Eliminar</>}
             </Button>
           </DialogFooter>
         </DialogContent>

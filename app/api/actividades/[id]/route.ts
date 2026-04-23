@@ -99,6 +99,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Actividad no encontrada" }, { status: 404 })
     }
 
+    await prisma.certificado.deleteMany({ where: { participante: { actividadId: params.id } } })
+    await prisma.participante.deleteMany({ where: { actividadId: params.id } })
     await prisma.actividad.delete({ where: { id: params.id } })
 
     return NextResponse.json({ message: "Actividad eliminada" })
