@@ -8,166 +8,183 @@ import {
   type EquipoPuenteGrua,
 } from "@/lib/equipos"
 
-/* ===== CONSTANTS ===== */
+/* ── Constants ──────────────────────────────────────────────────────── */
 const ORANGE = "#E8541A"
 const BLACK = "#000000"
-const GRAY_BG = "#CCCCCC"
-const WHITE = "#FFFFFF"
-const BORDER = 0.5
+const GRAY_BG = "#D0D0D0"
+const B = 0.5 // border width
 
-/* ===== STYLES ===== */
+const TIPO_LABELS: Record<string, string> = {
+  COMPETENCIAS: "CERTIFICADO DE COMPETENCIAS",
+  PUENTE_GRUA: "CERTIFICADO DE OPERADOR DE PUENTE GRÚA",
+  RIGGER: "CERTIFICADO DE RIGGER",
+  SOLDADURA: "CERTIFICADO DE SOLDADURA",
+}
+
+/* ── Styles ─────────────────────────────────────────────────────────── */
 const s = StyleSheet.create({
-  page: { paddingTop: 30, paddingBottom: 30, paddingHorizontal: 30, fontSize: 9, fontFamily: "Helvetica", color: BLACK },
-  /* Header 3-col table */
-  headerTable: { flexDirection: "row", borderWidth: BORDER, borderColor: BLACK },
-  headerCol1: { width: "20%", alignItems: "center", justifyContent: "center", padding: 4, borderRightWidth: BORDER, borderRightColor: BLACK },
-  headerCol2: { width: "55%", alignItems: "center", justifyContent: "center", padding: 4, borderRightWidth: BORDER, borderRightColor: BLACK },
-  headerCol3: { width: "25%", justifyContent: "center", padding: 4 },
-  headerLogo: { width: 80, height: "auto" },
-  headerTitle: { fontFamily: "Helvetica-Bold", fontSize: 10, textAlign: "center" },
-  headerMeta: { fontSize: 8, textAlign: "right" },
-  /* Orange bar */
-  orangeBar: { backgroundColor: ORANGE, paddingVertical: 5, marginTop: 2 },
-  orangeBarText: { color: ORANGE, fontFamily: "Helvetica-Bold", fontSize: 11, textAlign: "center" },
-  /* Section title */
-  sectionTitle: { fontFamily: "Helvetica-Bold", fontSize: 10, marginTop: 8, marginBottom: 3, textTransform: "uppercase" },
-  /* 2-col info table */
-  infoTable: { borderWidth: BORDER, borderColor: BLACK, marginBottom: 4 },
-  infoRow: { flexDirection: "row", borderBottomWidth: BORDER, borderBottomColor: BLACK },
-  infoLabel: { width: "30%", padding: 3, fontFamily: "Helvetica-Bold", fontSize: 9, borderRightWidth: BORDER, borderRightColor: BLACK },
+  page: { paddingTop: 28, paddingBottom: 28, paddingHorizontal: 28, fontSize: 9, fontFamily: "Helvetica", color: BLACK },
+
+  /* Header */
+  headerTable: { flexDirection: "row", borderWidth: B, borderColor: BLACK },
+  headerCol1: { width: "20%", alignItems: "center", justifyContent: "center", padding: 4, borderRightWidth: B, borderRightColor: BLACK },
+  headerCol2: { width: "60%", borderRightWidth: B, borderRightColor: BLACK },
+  headerCol2Top: { padding: 5, alignItems: "center", justifyContent: "center" },
+  headerCol2Bot: { borderTopWidth: B, borderTopColor: BLACK, padding: 5, alignItems: "center", justifyContent: "center" },
+  headerCol3: { width: "20%", justifyContent: "center", padding: 6, gap: 2 },
+  headerLogo: { width: 78 },
+  headerSgc: { fontFamily: "Helvetica-Bold", fontSize: 10, textAlign: "center" },
+  headerCertTitle: { fontFamily: "Helvetica-Bold", fontSize: 10, textAlign: "center", color: ORANGE },
+  headerMeta: { fontFamily: "Helvetica-Bold", fontSize: 8, textAlign: "right" },
+
+  /* Section titles */
+  sectionBold: { fontFamily: "Helvetica-Bold", fontSize: 9, marginTop: 6, marginBottom: 2 },
+  sectionNormal: { fontSize: 9, marginTop: 6, marginBottom: 2 },
+
+  /* Info table */
+  infoTable: { borderWidth: B, borderColor: BLACK, marginBottom: 3 },
+  infoRow: { flexDirection: "row", borderBottomWidth: B, borderBottomColor: BLACK },
+  infoRowLast: { flexDirection: "row" },
+  infoLabel: { width: "30%", padding: 3, fontFamily: "Helvetica-Bold", fontSize: 9, borderRightWidth: B, borderRightColor: BLACK },
   infoValue: { width: "70%", padding: 3, fontSize: 9 },
+
   /* Notes table */
-  notesHeaderRow: { flexDirection: "row", backgroundColor: GRAY_BG },
-  notesTh: { flex: 1, padding: 3, fontFamily: "Helvetica-Bold", fontSize: 8, textAlign: "center", borderRightWidth: BORDER, borderRightColor: BLACK, borderBottomWidth: BORDER, borderBottomColor: BLACK },
-  notesRow: { flexDirection: "row" },
-  notesTd: { flex: 1, padding: 3, fontSize: 9, textAlign: "center", borderRightWidth: BORDER, borderRightColor: BLACK, borderBottomWidth: BORDER, borderBottomColor: BLACK },
-  notesTable: { borderWidth: BORDER, borderColor: BLACK, marginBottom: 4 },
-  /* Equipos mini table */
+  notesTable: { borderWidth: B, borderColor: BLACK, marginBottom: 4 },
+  notesHRow: { flexDirection: "row", backgroundColor: GRAY_BG },
+  notesSRow: { flexDirection: "row", backgroundColor: GRAY_BG, borderTopWidth: B, borderTopColor: BLACK },
+  notesDRow: { flexDirection: "row" },
+  notesTh: { padding: 3, fontFamily: "Helvetica-Bold", fontSize: 8, textAlign: "center", borderRightWidth: B, borderRightColor: BLACK },
+  notesTd: { padding: 3, fontSize: 9, textAlign: "center", borderRightWidth: B, borderRightColor: BLACK },
+
+  /* Equipo tables */
   equipoGroupTitle: { fontFamily: "Helvetica-Bold", fontSize: 8, marginTop: 4, marginBottom: 1 },
-  equipoTable: { borderWidth: BORDER, borderColor: BLACK, marginBottom: 3 },
-  equipoHeaderRow: { flexDirection: "row", backgroundColor: GRAY_BG },
-  equipoRow: { flexDirection: "row" },
-  equipoRowHighlight: { flexDirection: "row", backgroundColor: ORANGE },
-  equipoCell: { padding: 2, fontSize: 6, textAlign: "center", borderRightWidth: BORDER, borderRightColor: BLACK, borderBottomWidth: BORDER, borderBottomColor: BLACK },
-  equipoCellHighlight: { padding: 2, fontSize: 6, textAlign: "center", borderRightWidth: BORDER, borderRightColor: BLACK, borderBottomWidth: BORDER, borderBottomColor: BLACK, color: WHITE },
-  equipoHeaderCell: { padding: 2, fontSize: 6, fontFamily: "Helvetica-Bold", textAlign: "center", borderRightWidth: BORDER, borderRightColor: BLACK, borderBottomWidth: BORDER, borderBottomColor: BLACK },
+  equipoTable: { borderWidth: B, borderColor: BLACK, marginBottom: 3 },
+  equipoRow: { flexDirection: "row", borderBottomWidth: B, borderBottomColor: BLACK },
+  equipoRowLast: { flexDirection: "row" },
+  equipoLabelCell: { padding: 2, fontSize: 6, fontFamily: "Helvetica-Bold", backgroundColor: GRAY_BG, textAlign: "center", borderRightWidth: B, borderRightColor: BLACK },
+  equipoDataCell: { padding: 2, fontSize: 6, textAlign: "center", borderRightWidth: B, borderRightColor: BLACK },
+
   /* Dates */
-  fechasTable: { borderWidth: BORDER, borderColor: BLACK, marginTop: 6, marginBottom: 4 },
+  fechasTable: { borderWidth: B, borderColor: BLACK, marginTop: 6, marginBottom: 4 },
+
+  /* Soldadura */
+  fotosBox: { borderWidth: B, borderColor: BLACK, flexDirection: "row", justifyContent: "space-around", padding: 4, marginBottom: 4, gap: 6 },
+  fotoImg: { width: "46%", height: 160 },
+  obsBox: { borderWidth: B, borderColor: BLACK, padding: 6, marginBottom: 4, height: 60 },
+
   /* Footer */
-  legalText: { fontSize: 7, marginTop: 6, marginBottom: 6, lineHeight: 1.4 },
-  footerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginTop: 4, marginBottom: 6 },
-  footerLeft: { alignItems: "center", width: "25%" },
-  footerCenter: { alignItems: "center", width: "40%" },
-  footerRight: { alignItems: "center", width: "25%" },
-  qrImage: { width: 70, height: 70 },
-  qrLabel: { fontSize: 7, marginTop: 2, textAlign: "center" },
-  firmaImage: { width: 120, height: 50 },
-  firmaName: { fontFamily: "Helvetica-Bold", fontSize: 9, marginTop: 2 },
+  legalText: { fontFamily: "Helvetica-Bold", fontSize: 7, marginTop: 6, marginBottom: 6, lineHeight: 1.5 },
+  footerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginTop: 4, marginBottom: 4 },
+  footerLeft: { alignItems: "center", width: "28%" },
+  footerCenter: { alignItems: "center", width: "38%" },
+  footerRight: { alignItems: "center", width: "28%" },
+  qrLabel: { fontSize: 7, marginBottom: 4, textAlign: "center" },
+  qrImg: { width: 70, height: 70 },
+  firmaImg: { width: 110, height: 46 },
+  firmaLine: { width: "90%", borderTopWidth: 1, borderTopColor: BLACK, marginVertical: 3 },
+  firmaName: { fontFamily: "Helvetica-Bold", fontSize: 9 },
   firmaTitle: { fontSize: 8, textAlign: "center" },
-  footerLogoImg: { width: 70, height: "auto" },
-  footerLogoLabel: { fontSize: 7, fontFamily: "Helvetica-Bold", marginTop: 2, textAlign: "center" },
-  pageFooter: { fontSize: 7, textAlign: "center", marginTop: 4, lineHeight: 1.4 },
-  /* Soldadura fotos */
-  fotosRow: { flexDirection: "row", justifyContent: "center", gap: 8, marginVertical: 4 },
-  fotoImg: { width: "48%", height: 160 },
-  /* Observaciones */
-  obsBox: { borderWidth: BORDER, borderColor: BLACK, padding: 6, marginBottom: 4, minHeight: 30 },
-  obsText: { fontSize: 9 },
+  footerOrgLabel: { fontFamily: "Helvetica-Bold", fontSize: 10, marginBottom: 4, textAlign: "center" },
+  footerLogoImg: { width: 68 },
+  pageFooter: { fontSize: 7, textAlign: "center", marginTop: 4, lineHeight: 1.5 },
 })
 
-/* ===== HELPER: Remove last border-bottom on last info row ===== */
-function InfoRow({ label, value, isLast }: { label: string; value: string; isLast?: boolean }) {
-  const rowStyle = isLast ? { ...s.infoRow, borderBottomWidth: 0 } : s.infoRow
+/* ── Helpers ────────────────────────────────────────────────────────── */
+function InfoRow({ label, value, last }: { label: string; value: string; last?: boolean }) {
   return (
-    <View style={rowStyle}>
+    <View style={last ? s.infoRowLast : s.infoRow}>
       <Text style={s.infoLabel}>{label}</Text>
       <Text style={s.infoValue}>{value}</Text>
     </View>
   )
 }
 
-/* ===== EQUIPO GROUP TABLE (horizontal columns per equipo) ===== */
-function EquipoGroupTable({
-  title,
-  equipos,
-  selectedMarca,
-  selectedModelo,
-  selectedCapacidad,
-}: {
-  title: string
-  equipos: EquipoPuenteGrua[]
-  selectedMarca: string
-  selectedModelo: string
-  selectedCapacidad: string
-}) {
-  const colCount = equipos.length
-  const colWidth = `${(100 / colCount).toFixed(2)}%`
-
-  function isMatch(eq: EquipoPuenteGrua) {
-    return (
-      eq.marca.toUpperCase() === selectedMarca.toUpperCase() &&
-      eq.modelo.toUpperCase() === selectedModelo.toUpperCase() &&
-      eq.capacidad.toUpperCase() === selectedCapacidad.toUpperCase()
-    )
-  }
-
-  const hasHighlight = equipos.some(isMatch)
+/* Double-header notes table.
+   COMPETENCIAS / SOLDADURA (no señales): 5 cols → notas spans 2
+   RIGGER / PUENTE_GRUA (con señales):   6 cols → notas spans 3        */
+function NotesTable({ p, senales }: { p: any; senales: boolean }) {
+  const sub = senales ? 3 : 2  // cols under NOTAS
+  const total = sub + 3        // + ASISTENCIA + N°REG + ESTADO
+  const pct = (n: number) => `${((n / total) * 100).toFixed(2)}%`
+  const notasW = pct(sub)
+  const singleW = pct(1)
+  const thL = { ...s.notesTh, borderRightWidth: 0 } // last in row → no right border
+  const tdL = { ...s.notesTd, borderRightWidth: 0, fontFamily: "Helvetica-Bold" }
 
   return (
-    <View>
-      <Text style={s.equipoGroupTitle}>{title}</Text>
-      <View style={s.equipoTable}>
-        {/* MARCA row */}
-        <View style={s.equipoHeaderRow}>
-          {equipos.map((eq, i) => (
-            <Text key={`m${i}`} style={{ ...s.equipoHeaderCell, width: colWidth }}>
-              {eq.marca}
-            </Text>
-          ))}
-        </View>
-        {/* MODELO row */}
-        <View style={hasHighlight ? s.equipoRow : s.equipoRow}>
-          {equipos.map((eq, i) => {
-            const hl = isMatch(eq)
-            return (
-              <Text
-                key={`mo${i}`}
-                style={{
-                  ...(hl ? s.equipoCellHighlight : s.equipoCell),
-                  width: colWidth,
-                  backgroundColor: hl ? ORANGE : undefined,
-                }}
-              >
-                {eq.modelo}
-              </Text>
-            )
-          })}
-        </View>
-        {/* CAPACIDAD row */}
-        <View style={s.equipoRow}>
-          {equipos.map((eq, i) => {
-            const hl = isMatch(eq)
-            return (
-              <Text
-                key={`c${i}`}
-                style={{
-                  ...(hl ? s.equipoCellHighlight : s.equipoCell),
-                  width: colWidth,
-                  backgroundColor: hl ? ORANGE : undefined,
-                  borderBottomWidth: 0,
-                }}
-              >
-                {eq.capacidad}
-              </Text>
-            )
-          })}
-        </View>
+    <View style={s.notesTable}>
+      {/* Row 1 — group headers */}
+      <View style={s.notesHRow}>
+        <Text style={{ ...s.notesTh, width: notasW }}>NOTAS</Text>
+        <Text style={{ ...s.notesTh, width: singleW }}>ASISTENCIA</Text>
+        <Text style={{ ...s.notesTh, width: singleW }}>N° REGISTRO</Text>
+        <Text style={{ ...thL, width: singleW }}>ESTADO</Text>
+      </View>
+      {/* Row 2 — sub-headers */}
+      <View style={s.notesSRow}>
+        <Text style={{ ...s.notesTh, width: singleW }}>TEORÍA</Text>
+        {senales && <Text style={{ ...s.notesTh, width: singleW }}>SEÑALES</Text>}
+        <Text style={{ ...s.notesTh, width: singleW }}>PRÁCTICA</Text>
+        {/* empty cells preserve column borders */}
+        <Text style={{ ...s.notesTh, width: singleW }}> </Text>
+        <Text style={{ ...s.notesTh, width: singleW }}> </Text>
+        <Text style={{ ...thL, width: singleW }}> </Text>
+      </View>
+      {/* Row 3 — data */}
+      <View style={s.notesDRow}>
+        <Text style={{ ...s.notesTd, width: singleW }}>{p.nota_teoria ?? "-"}</Text>
+        {senales && <Text style={{ ...s.notesTd, width: singleW }}>{p.senales ?? "-"}</Text>}
+        <Text style={{ ...s.notesTd, width: singleW }}>{p.nota_practica ?? "-"}</Text>
+        <Text style={{ ...s.notesTd, width: singleW }}>
+          {p.asistencia_pct != null ? `${p.asistencia_pct}%` : "-"}
+        </Text>
+        <Text style={{ ...s.notesTd, width: singleW }}>{p.nro_registro || "-"}</Text>
+        <Text style={{ ...tdL, width: singleW }}>{p.estado}</Text>
       </View>
     </View>
   )
 }
 
-/* ===== MAIN EXPORT ===== */
+/* Equipo group: label-first rows (MARCA | v1 | v2 | ...), no highlighting */
+function EquipoGroupTable({ title, equipos }: { title: string; equipos: EquipoPuenteGrua[] }) {
+  const n = equipos.length
+  // label col = 15%, remaining split among n data cols
+  const labelW = "15%"
+  const dataW = `${(85 / n).toFixed(2)}%`
+
+  const rows: Array<{ label: string; field: keyof EquipoPuenteGrua }> = [
+    { label: "MARCA", field: "marca" },
+    { label: "MODELO", field: "modelo" },
+    { label: "CAPACIDAD", field: "capacidad" },
+  ]
+
+  return (
+    <View>
+      <Text style={s.equipoGroupTitle}>{title}</Text>
+      <View style={s.equipoTable}>
+        {rows.map(({ label, field }, ri) => (
+          <View key={ri} style={ri < 2 ? s.equipoRow : s.equipoRowLast}>
+            <Text style={{ ...s.equipoLabelCell, width: labelW }}>{label}</Text>
+            {equipos.map((eq, ci) => (
+              <Text
+                key={ci}
+                style={{
+                  ...s.equipoDataCell,
+                  width: dataW,
+                  borderRightWidth: ci === n - 1 ? 0 : B,
+                }}
+              >
+                {eq[field]}
+              </Text>
+            ))}
+          </View>
+        ))}
+      </View>
+    </View>
+  )
+}
+
+/* ── Main export ─────────────────────────────────────────────────────── */
 export function CertificadoDocument(data: {
   tipo: string
   participante: any
@@ -185,140 +202,86 @@ export function CertificadoDocument(data: {
   const fechaTermino = new Date(actividad.fecha_termino).toLocaleDateString("es-CL")
 
   const showSenales = tipo === "RIGGER" || tipo === "PUENTE_GRUA"
-  const showEquiposTable = tipo === "PUENTE_GRUA"
-  const showSoldadura = tipo === "SOLDADURA"
-  const showVencimiento = tipo === "RIGGER" || tipo === "PUENTE_GRUA" || tipo === "SOLDADURA"
+  const showEquipos = tipo === "PUENTE_GRUA"
+  const isSoldadura = tipo === "SOLDADURA"
+  const showVencimiento = tipo !== "COMPETENCIAS"
 
-  const selectedMarca = participante.marca_equipo || ""
-  const selectedModelo = participante.modelo_equipo || ""
-  const selectedCapacidad = participante.capacidad_equipo || ""
-
-  // Use process.cwd() paths for server-side images
+  // TODO: reemplazar con logo real de Formacap (PNG transparente)
   const logoSrc = `${process.cwd()}/public/logo-formacap.png`
+  // TODO: reemplazar con firma real de Alexander Quijada (PNG transparente)
   const firmaSrc = `${process.cwd()}/public/firma-formacap.png`
+
+  const paginaLabel = tipo === "PUENTE_GRUA" ? "Página 1 de 2" : "Página 1 de 1"
 
   return (
     <Document>
       <Page size="A4" style={s.page}>
-        {/* ===== HEADER TABLE ===== */}
+
+        {/* ── HEADER TABLE ─────────────────────────────────────────── */}
         <View style={s.headerTable}>
+          {/* Col 1: logo */}
           <View style={s.headerCol1}>
             <Image src={logoSrc} style={s.headerLogo} />
           </View>
+
+          {/* Col 2: SGC title (top) + cert title in orange (bottom) */}
           <View style={s.headerCol2}>
-            <Text style={s.headerTitle}>Sistema de Gestión de la Calidad</Text>
+            <View style={s.headerCol2Top}>
+              <Text style={s.headerSgc}>Sistema de Gestión de la Calidad</Text>
+            </View>
+            <View style={s.headerCol2Bot}>
+              <Text style={s.headerCertTitle}>{TIPO_LABELS[tipo] ?? tipo}</Text>
+            </View>
           </View>
+
+          {/* Col 3: version meta (all bold) */}
           <View style={s.headerCol3}>
             <Text style={s.headerMeta}>Versión: 3</Text>
             <Text style={s.headerMeta}>RES. SENCE 2872</Text>
-            <Text style={s.headerMeta}>Página 1 de 1</Text>
+            <Text style={s.headerMeta}>{paginaLabel}</Text>
           </View>
         </View>
 
-        {/* ===== ORANGE BAR ===== */}
-        <View style={s.orangeBar}>
-          <Text style={{ ...s.orangeBarText, color: WHITE }}>CERTIFICADO DE COMPETENCIAS</Text>
-        </View>
-
-        {/* ===== INFORMACIÓN EMPRESA PARTICIPANTE ===== */}
-        <Text style={s.sectionTitle}>Información Empresa Participante</Text>
+        {/* ── INFORMACIÓN EMPRESA PARTICIPANTE ─────────────────────── */}
+        <Text style={s.sectionBold}>INFORMACIÓN EMPRESA PARTICIPANTE</Text>
         <View style={s.infoTable}>
           <InfoRow label="NOMBRE:" value={actividad.empresa_nombre} />
-          <InfoRow label="RUT:" value={actividad.empresa_rut} isLast />
+          <InfoRow label="RUT:" value={actividad.empresa_rut} last />
         </View>
 
-        {/* ===== INFORMACIÓN DE CURSO ===== */}
-        <Text style={s.sectionTitle}>Información de Curso</Text>
+        {/* ── INFORMACIÓN DE CURSO ─────────────────────────────────── */}
+        <Text style={s.sectionNormal}>INFORMACIÓN DE CURSO</Text>
         <View style={s.infoTable}>
           <InfoRow label="NOMBRE:" value={actividad.nombre_curso} />
           <InfoRow label="FECHA INICIO:" value={fechaInicio} />
           <InfoRow label="FECHA TÉRMINO:" value={fechaTermino} />
           <InfoRow label="LUGAR:" value={actividad.lugar} />
-          <InfoRow label="INSTRUCTOR:" value={actividad.instructor} isLast />
+          <InfoRow label="INSTRUCTOR:" value={actividad.instructor} last />
         </View>
 
-        {/* ===== INFORMACIÓN PARTICIPANTE ===== */}
-        <Text style={s.sectionTitle}>Información Participante</Text>
+        {/* ── INFORMACIÓN PARTICIPANTE ─────────────────────────────── */}
+        <Text style={s.sectionNormal}>INFORMACIÓN PARTICIPANTE</Text>
         <View style={s.infoTable}>
           <InfoRow label="NOMBRE:" value={participante.nombre} />
-          <InfoRow label="RUT:" value={participante.rut} isLast />
+          <InfoRow label="RUT:" value={participante.rut} last />
         </View>
 
-        {/* ===== TABLA DE NOTAS ===== */}
-        <View style={s.notesTable}>
-          <View style={s.notesHeaderRow}>
-            <Text style={s.notesTh}>TEORÍA</Text>
-            {showSenales && <Text style={s.notesTh}>SEÑALES</Text>}
-            <Text style={s.notesTh}>PRÁCTICA</Text>
-            <Text style={s.notesTh}>ASISTENCIA</Text>
-            <Text style={s.notesTh}>N° REGISTRO</Text>
-            <Text style={{ ...s.notesTh, borderRightWidth: 0 }}>ESTADO</Text>
-          </View>
-          <View style={s.notesRow}>
-            <Text style={s.notesTd}>{participante.nota_teoria ?? "-"}</Text>
-            {showSenales && <Text style={s.notesTd}>{participante.senales ?? "-"}</Text>}
-            <Text style={s.notesTd}>{participante.nota_practica ?? "-"}</Text>
-            <Text style={s.notesTd}>
-              {participante.asistencia_pct != null ? `${participante.asistencia_pct}%` : "-"}
-            </Text>
-            <Text style={s.notesTd}>{participante.nro_registro || "-"}</Text>
-            <Text style={{ ...s.notesTd, borderRightWidth: 0, fontFamily: "Helvetica-Bold" }}>
-              {participante.estado}
-            </Text>
-          </View>
-        </View>
-
-        {/* ===== EQUIPOS PUENTE GRÚA ===== */}
-        {showEquiposTable && (
-          <View>
-            <Text style={s.sectionTitle}>Equipos Puente Grúa</Text>
-            <EquipoGroupTable
-              title="KONECRANES"
-              equipos={EQUIPOS_GRUPO_1_KONECRANES}
-              selectedMarca={selectedMarca}
-              selectedModelo={selectedModelo}
-              selectedCapacidad={selectedCapacidad}
-            />
-            <EquipoGroupTable
-              title="ABUS"
-              equipos={EQUIPOS_GRUPO_2_ABUS}
-              selectedMarca={selectedMarca}
-              selectedModelo={selectedModelo}
-              selectedCapacidad={selectedCapacidad}
-            />
-            <EquipoGroupTable
-              title="R&M / INAMAR / TBM / WORLDHOIST / INAMAR-VAPOR"
-              equipos={EQUIPOS_GRUPO_3_VARIOS}
-              selectedMarca={selectedMarca}
-              selectedModelo={selectedModelo}
-              selectedCapacidad={selectedCapacidad}
-            />
-            <EquipoGroupTable
-              title="INAMAR/VAPOR"
-              equipos={EQUIPOS_GRUPO_4_INAMAR_VAPOR}
-              selectedMarca={selectedMarca}
-              selectedModelo={selectedModelo}
-              selectedCapacidad={selectedCapacidad}
-            />
-          </View>
-        )}
-
-        {/* ===== SOLDADURA: INFO PROBETAS ===== */}
-        {showSoldadura && (
-          <View>
-            <Text style={s.sectionTitle}>Información de Probetas</Text>
+        {/* ── SOLDADURA: INFORMACIÓN DE PROBETAS ───────────────────── */}
+        {isSoldadura && (
+          <>
+            <Text style={s.sectionNormal}>INFORMACIÓN DE PROBETAS</Text>
             <View style={s.infoTable}>
               <InfoRow label="ESPESOR/DIÁMETRO DE TUBERÍA:" value={participante.espesor_diametro || "-"} />
-              <InfoRow label="APLICACIÓN DE SOLDADURA:" value={participante.aplicacion_soldadura || "-"} isLast />
+              <InfoRow label="APLICACIÓN DE SOLDADURA:" value={participante.aplicacion_soldadura || "-"} last />
             </View>
-          </View>
+          </>
         )}
 
-        {/* ===== SOLDADURA: FOTOS PROBETAS ===== */}
-        {showSoldadura && (certificado.foto_probeta_1 || certificado.foto_probeta_2) && (
-          <View>
-            <Text style={s.sectionTitle}>Fotos de Probetas</Text>
-            <View style={s.fotosRow}>
+        {/* ── SOLDADURA: FOTOS DE PROBETAS ─────────────────────────── */}
+        {isSoldadura && (certificado.foto_probeta_1 || certificado.foto_probeta_2) && (
+          <>
+            <Text style={s.sectionNormal}>FOTOS DE PROBETAS</Text>
+            <View style={s.fotosBox}>
               {certificado.foto_probeta_1 && (
                 <Image src={certificado.foto_probeta_1} style={s.fotoImg} />
               )}
@@ -326,62 +289,79 @@ export function CertificadoDocument(data: {
                 <Image src={certificado.foto_probeta_2} style={s.fotoImg} />
               )}
             </View>
-          </View>
+          </>
         )}
 
-        {/* ===== SOLDADURA: OBSERVACIONES ===== */}
-        {showSoldadura && participante.observaciones && (
-          <View>
-            <Text style={s.sectionTitle}>Observaciones</Text>
+        {/* ── SOLDADURA: OBSERVACIONES (fixed-height, always shown) ── */}
+        {isSoldadura && (
+          <>
+            <Text style={s.sectionBold}>OBSERVACIONES</Text>
             <View style={s.obsBox}>
-              <Text style={s.obsText}>{participante.observaciones}</Text>
+              {participante.observaciones ? (
+                <Text style={{ fontSize: 9 }}>{participante.observaciones}</Text>
+              ) : null}
             </View>
+          </>
+        )}
+
+        {/* ── TABLA DE NOTAS ───────────────────────────────────────── */}
+        <NotesTable p={participante} senales={showSenales} />
+
+        {/* ── EQUIPOS PUENTE GRÚA ──────────────────────────────────── */}
+        {showEquipos && (
+          <View>
+            <Text style={s.sectionBold}>EQUIPOS PUENTE GRÚA</Text>
+            <EquipoGroupTable title="KONECRANES" equipos={EQUIPOS_GRUPO_1_KONECRANES} />
+            <EquipoGroupTable title="ABUS" equipos={EQUIPOS_GRUPO_2_ABUS} />
+            <EquipoGroupTable title="R&M / INAMAR / TBM / WORLDHOIST / INAMAR-VAPOR" equipos={EQUIPOS_GRUPO_3_VARIOS} />
+            <EquipoGroupTable title="INAMAR/VAPOR" equipos={EQUIPOS_GRUPO_4_INAMAR_VAPOR} />
           </View>
         )}
 
-        {/* ===== FECHAS ===== */}
+        {/* ── FECHAS ───────────────────────────────────────────────── */}
         <View style={s.fechasTable}>
-          <InfoRow label="FECHA DE EMISIÓN:" value={fechaEmision} isLast={!showVencimiento} />
+          <InfoRow label="FECHA DE EMISIÓN:" value={fechaEmision} last={!showVencimiento} />
           {showVencimiento && (
-            <InfoRow label="FECHA DE VENCIMIENTO:" value={fechaVencimiento || "N/A"} isLast />
+            <InfoRow label="FECHA DE VENCIMIENTO:" value={fechaVencimiento || "N/A"} last />
           )}
         </View>
 
-        {/* ===== LEGAL TEXT ===== */}
+        {/* ── LEGAL TEXT (bold) ─────────────────────────────────────── */}
         <Text style={s.legalText}>
-          Yo, Alexander Quijada, Gerente General de OTEC Capacitaciones Q&C Spa, Rut 77.520.118-5, certifico que los datos consignados en este documento son fidedignos.
+          Yo, Alexander Quijada, Gerente General de OTEC Capacitaciones Q&C Spa,
+          Rut 77.520.118-5, certifico que los datos consignados en este documento son fidedignos.
         </Text>
 
-        {/* ===== FOOTER 3 COLUMNS ===== */}
+        {/* ── FOOTER 3 COLUMNS ─────────────────────────────────────── */}
         <View style={s.footerRow}>
-          {/* Left: QR */}
+          {/* Left: label then QR */}
           <View style={s.footerLeft}>
-            <Image src={qrDataUrl} style={s.qrImage} />
             <Text style={s.qrLabel}>Consulta tu certificado:</Text>
+            <Image src={qrDataUrl} style={s.qrImg} />
           </View>
-          {/* Center: Firma */}
+
+          {/* Center: firma + line + name + title */}
           <View style={s.footerCenter}>
-            <Image src={firmaSrc} style={s.firmaImage} />
+            <Image src={firmaSrc} style={s.firmaImg} />
+            <View style={s.firmaLine} />
             <Text style={s.firmaName}>Alexander Quijada</Text>
             <Text style={s.firmaTitle}>Gerente General</Text>
           </View>
-          {/* Right: Logo */}
+
+          {/* Right: label then logo */}
           <View style={s.footerRight}>
+            <Text style={s.footerOrgLabel}>ORGANISMO TÉCNICO</Text>
             <Image src={logoSrc} style={s.footerLogoImg} />
-            <Text style={s.footerLogoLabel}>ORGANISMO TÉCNICO</Text>
           </View>
         </View>
 
-        {/* ===== PAGE FOOTER ===== */}
+        {/* ── PAGE FOOTER ──────────────────────────────────────────── */}
         <Text style={s.pageFooter}>
-          Empresa certificada por NCH 2728:2015 por el organismo ICONTEC
+          {"Empresa certificada por NCH 2728:2015 por el organismo ICONTEC\n"}
+          {"Reconocida por SENCE, bajo Resolución 2872\n"}
+          {"Página web www.formacap.cl; teléfono de contacto +56 9 73267783"}
         </Text>
-        <Text style={s.pageFooter}>
-          Reconocida por SENCE, bajo Resolución 2872
-        </Text>
-        <Text style={s.pageFooter}>
-          Página web www.formacap.cl; teléfono de contacto +56 9 73267783
-        </Text>
+
       </Page>
     </Document>
   )
