@@ -1,7 +1,5 @@
 import ReactPDF from "@react-pdf/renderer"
 import { CertificadoDocument } from "@/components/certificados/template"
-import path from "path"
-import fs from "fs"
 
 export interface CertificadoData {
   tipo: string
@@ -21,12 +19,4 @@ export async function renderCertificadoPDF(data: CertificadoData): Promise<Buffe
     stream.on("end", () => resolve(Buffer.concat(chunks)))
     stream.on("error", reject)
   })
-}
-
-export function savePDF(buffer: Buffer, filename: string): string {
-  const dir = path.join(process.cwd(), "public", "uploads", "certificados")
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-  const filepath = path.join(dir, filename)
-  fs.writeFileSync(filepath, buffer)
-  return `/uploads/certificados/${filename}`
 }

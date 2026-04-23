@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { generarCodigo } from "@/lib/certificado"
 import { generarQR } from "@/lib/qr"
-import { renderCertificadoPDF, savePDF } from "@/lib/pdf"
+import { renderCertificadoPDF } from "@/lib/pdf"
 
 export async function POST(request: Request) {
   try {
@@ -46,19 +46,24 @@ export async function POST(request: Request) {
       certificado: certData, qrDataUrl,
     })
 
-    const filename = `${codigo}.pdf`
-    const pdfUrl = savePDF(pdfBuffer, filename)
-
     const certificado = await prisma.certificado.create({
       data: {
-        participanteId, codigo, pdf_url: pdfUrl,
+        participanteId, codigo, pdf_url: null,
         foto_probeta_1: foto_probeta_1 || null, foto_probeta_2: foto_probeta_2 || null,
         fecha_emision: fechaEmision, fecha_vencimiento: fechaVencimiento,
         qr_url: verificarUrl,
       },
     })
 
-    return NextResponse.json(certificado, { status: 201 })
+    return new Response(new Uint8Array(pdfBuffer), {
+      status: 201,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="certificado-${codigo}.pdf"`,
+        "X-Certificado-Id": certificado.id,
+        "X-Certificado-Codigo": codigo,
+      },
+    })
   } catch (error: any) {
     console.error("Error generando certificado:", error)
     return NextResponse.json({

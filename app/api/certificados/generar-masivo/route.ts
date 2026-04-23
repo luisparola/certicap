@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { generarCodigo } from "@/lib/certificado"
 import { generarQR } from "@/lib/qr"
-import { renderCertificadoPDF, savePDF } from "@/lib/pdf"
+import { renderCertificadoPDF } from "@/lib/pdf"
 
 export async function POST(request: Request) {
   try {
@@ -20,10 +20,7 @@ export async function POST(request: Request) {
     })
     if (!actividad) return NextResponse.json({ error: "No encontrada" }, { status: 404 })
 
-    const sinCertificado = actividad.participantes.filter((p) => {
-      if (p.certificado) return false
-      return true
-    })
+    const sinCertificado = actividad.participantes.filter((p) => !p.certificado)
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     const results = { generated: 0, errors: 0, total: sinCertificado.length }
@@ -45,15 +42,14 @@ export async function POST(request: Request) {
           foto_probeta_1: null, foto_probeta_2: null, qr_url: verificarUrl,
         }
 
-        const pdfBuffer = await renderCertificadoPDF({
+        await renderCertificadoPDF({
           tipo: actividad.tipo_certificado, participante, actividad,
           certificado: certData, qrDataUrl,
         })
 
-        const pdfUrl = savePDF(pdfBuffer, `${codigo}.pdf`)
         await prisma.certificado.create({
           data: {
-            participanteId: participante.id, codigo, pdf_url: pdfUrl,
+            participanteId: participante.id, codigo, pdf_url: null,
             fecha_emision: fechaEmision, fecha_vencimiento: fechaVencimiento,
             qr_url: verificarUrl,
           },

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -29,6 +29,15 @@ export default function CertificadosActividadPage() {
 
   useEffect(() => { fetchData() }, [params.id])
 
+  const downloadBlob = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const generar = async (participanteId: string) => {
     setGeneratingId(participanteId)
     try {
@@ -37,11 +46,21 @@ export default function CertificadosActividadPage() {
         body: JSON.stringify({ participanteId }),
       })
       if (!res.ok) { const e = await res.json(); throw new Error(e.error) }
-      toast({ title: "Certificado generado", description: "PDF creado exitosamente." })
+      const blob = await res.blob()
+      const codigo = res.headers.get("X-Certificado-Codigo") ?? "certificado"
+      downloadBlob(blob, `certificado-${codigo}.pdf`)
+      toast({ title: "Certificado generado", description: "PDF descargado exitosamente." })
       fetchData()
     } catch (err: any) {
       toast({ variant: "destructive", title: "Error", description: err.message || "Error al generar" })
     } finally { setGeneratingId("") }
+  }
+
+  const descargarPDF = async (certificadoId: string, codigo: string) => {
+    const res = await fetch(`/api/certificados/${certificadoId}/pdf`)
+    if (!res.ok) { toast({ variant: "destructive", title: "Error", description: "No se pudo descargar el PDF" }); return }
+    const blob = await res.blob()
+    downloadBlob(blob, `certificado-${codigo}.pdf`)
   }
 
   const generarMasivo = async () => {
@@ -100,7 +119,7 @@ export default function CertificadosActividadPage() {
                   <TableCell>
                     {p.certificado ? (
                       <div className="flex gap-1">
-                        <a href={p.certificado.pdf_url} target="_blank"><Button variant="ghost" size="sm" className="text-gray-400 hover:text-[#E8541A]"><Download className="h-4 w-4" /></Button></a>
+                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-[#E8541A]" onClick={() => descargarPDF(p.certificado.id, p.certificado.codigo)}><Download className="h-4 w-4" /></Button>
                         <Link href={`/verificar/${p.certificado.codigo}`} target="_blank"><Button variant="ghost" size="sm" className="text-gray-400 hover:text-blue-400">Ver</Button></Link>
                       </div>
                     ) : (
