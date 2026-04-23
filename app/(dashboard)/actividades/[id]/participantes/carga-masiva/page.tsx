@@ -38,6 +38,11 @@ export default function CargaMasivaPage() {
     window.open(`/api/actividades/${params.id}/participantes/plantilla`, "_blank")
   }
 
+  const get = (row: Record<string, any>, key: string): any => {
+    const found = Object.keys(row).find((k) => k.trim().toLowerCase() === key.toLowerCase())
+    return found ? row[found] : undefined
+  }
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -47,13 +52,15 @@ export default function CargaMasivaPage() {
       const wb = XLSX.read(data, { type: "array" })
       const ws = wb.Sheets[wb.SheetNames[0]]
       const json = XLSX.utils.sheet_to_json<Record<string, any>>(ws)
+      if (json.length > 0) console.log("Headers encontrados:", Object.keys(json[0]))
       const validEstados = ["APROBADO", "REPROBADO", "PENDIENTE"]
-      const parsed: ParsedRow[] = json.map((row, i) => {
+      const parsed: ParsedRow[] = json.map((row) => {
         const errors: string[] = []
-        if (!row.NOMBRE) errors.push("Nombre requerido")
-        if (!row.RUT) errors.push("RUT requerido")
-        else if (!validarRut(String(row.RUT))) errors.push("RUT invalido")
-        if (row.ESTADO && !validEstados.includes(String(row.ESTADO).toUpperCase())) errors.push("Estado invalido")
+        if (!get(row, "NOMBRE")) errors.push("Nombre requerido")
+        if (!get(row, "RUT")) errors.push("RUT requerido")
+        else if (!validarRut(String(get(row, "RUT")))) errors.push("RUT invalido")
+        const estado = get(row, "ESTADO")
+        if (estado && !validEstados.includes(String(estado).toUpperCase())) errors.push("Estado invalido")
         return { data: row, valid: errors.length === 0, errors }
       })
       setRows(parsed)
@@ -69,12 +76,16 @@ export default function CargaMasivaPage() {
     setImporting(true)
     try {
       const participantes = validRows.map((r) => ({
-        nombre: r.data.NOMBRE, rut: String(r.data.RUT),
-        nota_teoria: r.data.NOTA_TEORIA || null, nota_practica: r.data.NOTA_PRACTICA || null,
-        asistencia_pct: r.data.ASISTENCIA_PCT || null, nro_registro: r.data.NRO_REGISTRO ? String(r.data.NRO_REGISTRO) : null,
-        estado: String(r.data.ESTADO || "PENDIENTE").toUpperCase(),
-        marca_equipo: r.data.MARCA_EQUIPO || null, modelo_equipo: r.data.MODELO_EQUIPO || null,
-        capacidad_equipo: r.data.CAPACIDAD_EQUIPO || null, senales: r.data.SENALES || null,
+        nombre: get(r.data, "NOMBRE"), rut: String(get(r.data, "RUT")),
+        nota_teoria: get(r.data, "NOTA_TEORIA") || null,
+        nota_practica: get(r.data, "NOTA_PRACTICA") || null,
+        asistencia_pct: get(r.data, "ASISTENCIA_PCT") || null,
+        nro_registro: get(r.data, "NRO_REGISTRO") ? String(get(r.data, "NRO_REGISTRO")) : null,
+        estado: String(get(r.data, "ESTADO") || "PENDIENTE").toUpperCase(),
+        marca_equipo: get(r.data, "MARCA_EQUIPO") || null,
+        modelo_equipo: get(r.data, "MODELO_EQUIPO") || null,
+        capacidad_equipo: get(r.data, "CAPACIDAD_EQUIPO") || null,
+        senales: get(r.data, "SENALES") || null,
       }))
       const res = await fetch(`/api/actividades/${params.id}/participantes/bulk`, {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ participantes }),
@@ -128,9 +139,9 @@ export default function CargaMasivaPage() {
                   {rows.map((row, i) => (
                     <TableRow key={i} className={`border-white/5 ${row.valid ? "" : "bg-red-500/5"}`}>
                       <TableCell className="text-gray-400">{i + 1}</TableCell>
-                      <TableCell className="text-white">{row.data.NOMBRE || "-"}</TableCell>
-                      <TableCell className="text-gray-300">{row.data.RUT || "-"}</TableCell>
-                      <TableCell className="text-gray-300">{row.data.ESTADO || "PENDIENTE"}</TableCell>
+                      <TableCell className="text-white">{get(row.data, "NOMBRE") || "-"}</TableCell>
+                      <TableCell className="text-gray-300">{get(row.data, "RUT") || "-"}</TableCell>
+                      <TableCell className="text-gray-300">{get(row.data, "ESTADO") || "PENDIENTE"}</TableCell>
                       <TableCell>{row.valid ? <Badge className="bg-emerald-500/20 text-emerald-400">OK</Badge> : <span className="text-xs text-red-400">{row.errors.join(", ")}</span>}</TableCell>
                     </TableRow>
                   ))}
