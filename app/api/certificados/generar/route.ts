@@ -59,8 +59,11 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json(certificado, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generando certificado:", error)
-    return NextResponse.json({ error: "Error al generar certificado" }, { status: 500 })
+    return NextResponse.json({
+      error: error?.message ?? "Error al generar certificado",
+      stack: error?.stack,
+    }, { status: 500 })
   }
 }
