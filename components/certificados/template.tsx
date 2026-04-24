@@ -60,32 +60,29 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
   @page { size: A4; margin: 0; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html, body {
-    width: 210mm;
-    height: 297mm;
-    overflow: hidden;
+  /* Body = full A4, padding provides margins, flex column */
+  body {
     font-family: Arial, sans-serif;
     font-size: 9pt;
     color: #000;
-  }
-
-  /* Full-page flex container — fills exactly one A4 sheet */
-  .cert-page {
     width: 210mm;
     height: 297mm;
-    padding: 12mm 14mm 10mm 14mm;
+    padding: 12mm 15mm 10mm 15mm;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
-  /* Grows to absorb all available vertical space */
-  .cert-content { flex: 1; display: flex; flex-direction: column; }
-
-  /* Always sits at the bottom */
-  .cert-footer { margin-top: auto; padding-top: 6pt; }
+  /* Grows to fill remaining height; space-between spreads sections evenly */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 
   /* HEADER */
-  table.header { width: 100%; border-collapse: collapse; border: 0.5pt solid #000; }
+  table.header { width: 100%; border-collapse: collapse; border: 0.5pt solid #000; margin-bottom: 0; }
   table.header td { border: 0.5pt solid #000; padding: 3pt 5pt; vertical-align: middle; }
   .logo-cell { width: 20%; text-align: center; }
   .title-cell { width: 60%; text-align: center; }
@@ -96,27 +93,27 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
     border-top: 0.5pt solid #000; padding-top: 3pt; margin-top: 3pt;
   }
 
-  /* SECTIONS */
-  .sec-bold   { font-weight: bold; font-size: 9pt; margin-top: 6pt; margin-bottom: 2pt; }
-  .sec-normal { font-weight: normal; font-size: 9pt; margin-top: 6pt; margin-bottom: 2pt; }
+  /* SECTION TITLES */
+  .sec-bold   { font-weight: bold;   font-size: 9pt; margin-top: 0; margin-bottom: 3pt; }
+  .sec-normal { font-weight: normal; font-size: 9pt; margin-top: 0; margin-bottom: 3pt; }
 
   /* INFO TABLE */
-  table.info { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
-  table.info td { border: 0.5pt solid #000; padding: 2.5pt 4pt; }
+  table.info { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  table.info td { border: 0.5pt solid #000; padding: 4pt 6pt; }
   table.info td.lbl { width: 30%; font-weight: bold; }
 
   /* NOTAS TABLE */
-  table.notas { width: 100%; border-collapse: collapse; font-size: 8.5pt; margin-top: 6pt; }
-  table.notas td, table.notas th { border: 0.5pt solid #000; padding: 2.5pt 3pt; text-align: center; }
+  table.notas { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  table.notas td, table.notas th { border: 0.5pt solid #000; padding: 4pt 5pt; text-align: center; }
   table.notas tr.hrow th { background: #D0D0D0; font-weight: bold; }
 
   /* FECHAS */
-  table.fechas { width: 55%; border-collapse: collapse; margin-top: 6pt; font-size: 8.5pt; }
-  table.fechas td { border: 0.5pt solid #000; padding: 2.5pt 4pt; }
+  table.fechas { width: 55%; border-collapse: collapse; font-size: 9pt; }
+  table.fechas td { border: 0.5pt solid #000; padding: 4pt 6pt; }
   table.fechas td.lbl { font-weight: bold; width: 55%; }
 
   /* LEGAL */
-  .legal { font-size: 8pt; font-weight: bold; text-align: justify; margin-bottom: 4pt; }
+  .legal { font-size: 8pt; font-weight: bold; text-align: justify; }
 
   /* FOOTER ROW (QR / firma / logo) */
   table.footer { width: 100%; border-collapse: collapse; }
@@ -125,58 +122,61 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
   .firma-line { border-top: 1pt solid #000; width: 70%; margin: 3pt auto 0; padding-top: 2pt; }
   .org-label { font-weight: bold; font-size: 10pt; margin-bottom: 3pt; }
 
-  /* PAGE FOOTER */
-  .pie { text-align: center; font-size: 7pt; margin-top: 5pt; line-height: 1.5; }
+  /* PIE — sits after main-content */
+  .pie { text-align: center; font-size: 7pt; margin-top: 6pt; line-height: 1.5; }
 
   /* EQUIPOS */
-  table.equipos { width: 100%; border-collapse: collapse; margin-top: 2pt; font-size: 6.5pt; }
+  table.equipos { width: 100%; border-collapse: collapse; font-size: 6.5pt; }
   table.equipos td { border: 0.5pt solid #000; padding: 1.5pt 2pt; text-align: center; }
   table.equipos td.eq-lbl { font-weight: bold; background: #E8E8E8; text-align: left; width: 12%; }
+  table.equipos + table.equipos { margin-top: 2pt; }
 
   /* FOTOS */
-  .fotos-wrap { display: flex; gap: 4pt; border: 0.5pt solid #000; padding: 3pt; margin-top: 2pt; }
+  .fotos-wrap { display: flex; gap: 4pt; border: 0.5pt solid #000; padding: 3pt; }
   .fotos-wrap img { width: 49%; height: 110pt; object-fit: cover; }
   .foto-placeholder { width: 49%; height: 110pt; border: 0.5pt solid #ccc; }
 
   /* OBS */
-  .obs-box { border: 0.5pt solid #000; min-height: 36pt; padding: 3pt; margin-top: 2pt; font-size: 8.5pt; }
+  .obs-box { border: 0.5pt solid #000; min-height: 36pt; padding: 4pt; font-size: 9pt; }
 
   img.logo { width: 100%; max-height: 44pt; object-fit: contain; }
-  img.firma { height: 40pt; max-width: 130pt; object-fit: contain; }
-  img.qr { width: 60pt; height: 60pt; }
-  img.logo-footer { height: 44pt; object-fit: contain; }
+  img.firma { height: 42pt; max-width: 130pt; object-fit: contain; }
+  img.qr { width: 62pt; height: 62pt; }
+  img.logo-footer { height: 46pt; object-fit: contain; }
 </style>
 </head>
 <body>
-<div class="cert-page">
 
-  <!-- ── MAIN CONTENT (grows to fill space) ── -->
-  <div class="cert-content">
+<!-- HEADER — direct body child, outside main-content -->
+<table class="header">
+  <tr>
+    <td class="logo-cell">
+      ${d.logoBase64 ? `<img class="logo" src="${d.logoBase64}" alt="Formacap"/>` : "<span style='font-weight:bold;font-size:11pt'>FORMACAP</span>"}
+    </td>
+    <td class="title-cell">
+      <div class="sgc-text">Sistema de Gestión de la Calidad</div>
+      <div class="cert-title-text">${esc(titulo)}</div>
+    </td>
+    <td class="version-cell">
+      Versión: 3<br/>RES. SENCE 2872<br/>Página ${esc(d.pagina)}
+    </td>
+  </tr>
+</table>
 
-    <!-- HEADER -->
-    <table class="header">
-      <tr>
-        <td class="logo-cell">
-          ${d.logoBase64 ? `<img class="logo" src="${d.logoBase64}" alt="Formacap"/>` : "<span style='font-weight:bold;font-size:11pt'>FORMACAP</span>"}
-        </td>
-        <td class="title-cell">
-          <div class="sgc-text">Sistema de Gestión de la Calidad</div>
-          <div class="cert-title-text">${esc(titulo)}</div>
-        </td>
-        <td class="version-cell">
-          Versión: 3<br/>RES. SENCE 2872<br/>Página ${esc(d.pagina)}
-        </td>
-      </tr>
-    </table>
+<!-- MAIN CONTENT — flex:1 + space-between distributes spacing evenly -->
+<div class="main-content">
 
-    <!-- EMPRESA -->
+  <!-- EMPRESA -->
+  <div>
     <div class="sec-bold">INFORMACIÓN EMPRESA PARTICIPANTE</div>
     <table class="info">
       <tr><td class="lbl">NOMBRE:</td><td>${esc(d.empresa_nombre)}</td></tr>
       <tr><td class="lbl">RUT:</td><td>${esc(d.empresa_rut)}</td></tr>
     </table>
+  </div>
 
-    <!-- CURSO -->
+  <!-- CURSO -->
+  <div>
     <div class="sec-normal">INFORMACIÓN DE CURSO</div>
     <table class="info">
       <tr><td class="lbl">NOMBRE:</td><td>${esc(d.nombre_curso)}</td></tr>
@@ -185,36 +185,46 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
       <tr><td class="lbl">LUGAR:</td><td>${esc(d.lugar)}</td></tr>
       <tr><td class="lbl">INSTRUCTOR:</td><td>${esc(d.instructor)}</td></tr>
     </table>
+  </div>
 
-    <!-- PARTICIPANTE -->
+  <!-- PARTICIPANTE -->
+  <div>
     <div class="sec-normal">INFORMACIÓN PARTICIPANTE</div>
     <table class="info">
       <tr><td class="lbl">NOMBRE:</td><td>${esc(d.nombre_participante)}</td></tr>
       <tr><td class="lbl">RUT:</td><td>${esc(d.rut_participante)}</td></tr>
     </table>
+  </div>
 
-    ${isSoldadura ? `
-    <!-- PROBETAS INFO -->
+  ${isSoldadura ? `
+  <!-- PROBETAS INFO -->
+  <div>
     <div class="sec-normal">INFORMACIÓN DE PROBETAS</div>
     <table class="info">
       <tr><td class="lbl">ESPESOR/DIÁMETRO DE TUBERÍA:</td><td>${esc(d.espesor_diametro)}</td></tr>
       <tr><td class="lbl">APLICACIÓN DE SOLDADURA:</td><td>${esc(d.aplicacion_soldadura)}</td></tr>
     </table>
+  </div>
 
-    <!-- FOTOS PROBETAS -->
+  <!-- FOTOS PROBETAS -->
+  <div>
     <div class="sec-normal">FOTOS DE PROBETAS</div>
     <div class="fotos-wrap">
       ${d.foto_probeta_1 ? `<img src="${d.foto_probeta_1}" alt="Probeta 1"/>` : '<div class="foto-placeholder"></div>'}
       ${d.foto_probeta_2 ? `<img src="${d.foto_probeta_2}" alt="Probeta 2"/>` : '<div class="foto-placeholder"></div>'}
     </div>
+  </div>
 
-    <!-- OBSERVACIONES -->
+  <!-- OBSERVACIONES -->
+  <div>
     <div class="sec-bold">OBSERVACIONES</div>
     <div class="obs-box">${esc(d.observaciones ?? "")}</div>
-    ` : ""}
+  </div>
+  ` : ""}
 
-    ${showEquipos ? `
-    <!-- EQUIPOS PUENTE GRÚA -->
+  ${showEquipos ? `
+  <!-- EQUIPOS PUENTE GRÚA -->
+  <div>
     <div class="sec-bold">EQUIPOS PUENTE GRÚA</div>
     <table class="equipos">
       <tr>
@@ -261,9 +271,11 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
         <td class="eq-lbl">CAPACIDAD</td><td>7.5 Ton</td><td>3.2 Ton</td>
       </tr>
     </table>
-    ` : ""}
+  </div>
+  ` : ""}
 
-    <!-- NOTAS -->
+  <!-- NOTAS -->
+  <div>
     <table class="notas">
       <tr class="hrow">
         <th colspan="${showSenales ? 3 : 2}">NOTAS</th>
@@ -286,26 +298,23 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
         <td><b>${esc(d.estado)}</b></td>
       </tr>
     </table>
+  </div>
 
-    <!-- FECHAS -->
+  <!-- FECHAS -->
+  <div>
     <table class="fechas">
       <tr><td class="lbl">FECHA DE EMISIÓN:</td><td>${esc(d.fecha_emision)}</td></tr>
       ${d.fecha_vencimiento ? `<tr><td class="lbl">FECHA DE VENCIMIENTO:</td><td>${esc(d.fecha_vencimiento)}</td></tr>` : ""}
     </table>
+  </div>
 
-  </div><!-- /cert-content -->
-
-  <!-- ── FOOTER — always at bottom ── -->
-  <div class="cert-footer">
-
-    <!-- LEGAL -->
+  <!-- LEGAL + QR/FIRMA/LOGO -->
+  <div>
     <div class="legal">
       Yo, Alexander Quijada, Gerente General de OTEC Capacitaciones Q&amp;C Spa, Rut 77.520.118-5,
       certifico que los datos consignados en este documento son fidedignos.
     </div>
-
-    <!-- QR / FIRMA / LOGO -->
-    <table class="footer">
+    <table class="footer" style="margin-top:6pt">
       <tr>
         <td>
           <div class="qr-label">Consulta tu certificado:</div>
@@ -324,17 +333,17 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
         </td>
       </tr>
     </table>
+  </div>
 
-    <!-- PIE -->
-    <div class="pie">
-      Empresa certificada por <b>NCH 2728:2015</b> por el organismo <b>ICONTEC</b><br/>
-      <b>Reconocida por SENCE, bajo Resolución 2872</b><br/>
-      Página web www.formacap.cl; teléfono de contacto +56 9 73267783
-    </div>
+</div><!-- /main-content -->
 
-  </div><!-- /cert-footer -->
+<!-- PIE — direct body child, after main-content -->
+<div class="pie">
+  Empresa certificada por <b>NCH 2728:2015</b> por el organismo <b>ICONTEC</b><br/>
+  <b>Reconocida por SENCE, bajo Resolución 2872</b><br/>
+  Página web www.formacap.cl; teléfono de contacto +56 9 73267783
+</div>
 
-</div><!-- /cert-page -->
 </body>
 </html>`
 }
