@@ -33,18 +33,14 @@ export async function renderCertificadoPDF(data: CertificadoData): Promise<Buffe
   const logoBase64 = imageToBase64("logo-formacap.png", "image/png")
   const firmaBase64 = imageToBase64("firma-formacap.png", "image/png")
 
-  const showVencimiento = tipo !== "COMPETENCIAS"
   const pagina = tipo === "PUENTE_GRUA" ? "1 de 2" : "1 de 1"
 
-  // Fallback: calculate vencimiento from emision if missing in DB
+  // Always compute vencimiento; fallback to calculation if DB value is null
   let fechaVencimientoFinal = certificado.fecha_vencimiento
-  if (!fechaVencimientoFinal && (tipo === "PUENTE_GRUA" || tipo === "RIGGER")) {
+  if (!fechaVencimientoFinal) {
     const fe = new Date(certificado.fecha_emision)
-    fe.setFullYear(fe.getFullYear() + 1)
-    fechaVencimientoFinal = fe
-  } else if (!fechaVencimientoFinal && tipo === "SOLDADURA") {
-    const fe = new Date(certificado.fecha_emision)
-    fe.setFullYear(fe.getFullYear() + 2)
+    const years = (tipo === "PUENTE_GRUA" || tipo === "RIGGER") ? 1 : 2
+    fe.setFullYear(fe.getFullYear() + years)
     fechaVencimientoFinal = fe
   }
 
@@ -75,9 +71,7 @@ export async function renderCertificadoPDF(data: CertificadoData): Promise<Buffe
     foto_probeta_1: certificado.foto_probeta_1 ?? "",
     foto_probeta_2: certificado.foto_probeta_2 ?? "",
     fecha_emision: fmt(certificado.fecha_emision),
-    fecha_vencimiento: showVencimiento && fechaVencimientoFinal
-      ? fmt(fechaVencimientoFinal)
-      : "",
+    fecha_vencimiento: fmt(fechaVencimientoFinal),
   })
 
   const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH

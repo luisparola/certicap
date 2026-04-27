@@ -43,7 +43,7 @@ export interface HtmlCertData {
   foto_probeta_1?: string
   foto_probeta_2?: string
   fecha_emision: string
-  fecha_vencimiento?: string
+  fecha_vencimiento: string
 }
 
 export function generarHTMLCertificado(d: HtmlCertData): string {
@@ -283,7 +283,7 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
   <!-- FECHAS -->
   <table class="fechas">
     <tr><td class="lbl">FECHA DE EMISIÓN:</td><td>${esc(d.fecha_emision)}</td></tr>
-    ${d.fecha_vencimiento ? `<tr><td class="lbl">FECHA DE VENCIMIENTO:</td><td>${esc(d.fecha_vencimiento)}</td></tr>` : ""}
+    <tr><td class="lbl">FECHA DE VENCIMIENTO:</td><td>${esc(d.fecha_vencimiento)}</td></tr>
   </table>
 
   <!-- LEGAL -->

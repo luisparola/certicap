@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     if (tipoCert === "PUENTE_GRUA" || tipoCert === "RIGGER") {
       fechaVencimiento = new Date(fechaEmision)
       fechaVencimiento.setFullYear(fechaVencimiento.getFullYear() + 1)
-    } else if (tipoCert === "SOLDADURA") {
+    } else if (tipoCert === "SOLDADURA" || tipoCert === "COMPETENCIAS") {
       fechaVencimiento = new Date(fechaEmision)
       fechaVencimiento.setFullYear(fechaVencimiento.getFullYear() + 2)
     }
