@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "CertiCap - Sistema de Certificados | Formacap",
-  description: "Sistema de gestion y generacion de certificados para OTEC Formacap. Administre actividades, participantes y certificados de capacitacion.",
+  description: "Sistema de gestión y generación de certificados para OTEC Formacap. Administre actividades, participantes y certificados de capacitación.",
 }
 
 export default function RootLayout({

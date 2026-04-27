@@ -30,13 +30,13 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError("Credenciales invalidas. Verifica tu email y contrasena.")
+        setError("Credenciales inválidas. Verifica tu email y contraseña.")
       } else {
         router.push("/dashboard")
         router.refresh()
       }
     } catch {
-      setError("Error al iniciar sesion. Intenta nuevamente.")
+      setError("Error al iniciar sesión. Intenta nuevamente.")
     } finally {
       setLoading(false)
     }
@@ -72,14 +72,14 @@ export default function LoginPage() {
               Acceso al Sistema
             </CardTitle>
             <CardDescription className="text-[#666666]">
-              Sistema de Gestion de Certificados
+              Sistema de Gestión de Certificados
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm text-gray-300">
-                  Correo electronico
+                  Correo electrónico
                 </Label>
                 <Input
                   id="email"
@@ -94,12 +94,12 @@ export default function LoginPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm text-gray-300">
-                  Contrasena
+                  Contraseña
                 </Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Ingresa tu contrasena"
+                  placeholder="Ingresa tu contraseña"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -122,10 +122,10 @@ export default function LoginPage() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Iniciando sesion...
+                    Iniciando sesión...
                   </>
                 ) : (
-                  "Iniciar Sesion"
+                  "Iniciar Sesión"
                 )}
               </Button>
             </form>

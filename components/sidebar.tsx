@@ -119,7 +119,7 @@ export function Sidebar() {
           onClick={() => signOut({ callbackUrl: "/login" })}
         >
           <LogOut className="h-4 w-4 mr-2" />
-          {!collapsed && "Cerrar Sesion"}
+          {!collapsed && "Cerrar Sesión"}
         </Button>
       </div>
     </div>

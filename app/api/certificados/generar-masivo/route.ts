@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(results)
   } catch (error) {
-    console.error("Error generacion masiva:", error)
-    return NextResponse.json({ error: "Error en generacion masiva" }, { status: 500 })
+    console.error("Error generación masiva:", error)
+    return NextResponse.json({ error: "Error en generación masiva" }, { status: 500 })
   }
 }

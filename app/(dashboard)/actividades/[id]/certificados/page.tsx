@@ -142,10 +142,10 @@ export default function CertificadosActividadPage() {
       if (!res.ok) throw new Error("Error")
       const result = await res.json()
       setProgress(100)
-      toast({ title: "Generacion masiva completada", description: `${result.generated} certificados generados. ${result.errors} errores.` })
+      toast({ title: "Generación masiva completada", description: `${result.generated} certificados generados. ${result.errors} errores.` })
       fetchData()
     } catch {
-      toast({ variant: "destructive", title: "Error", description: "Error en generacion masiva" })
+      toast({ variant: "destructive", title: "Error", description: "Error en generación masiva" })
     } finally { setGenerating(false) }
   }
 

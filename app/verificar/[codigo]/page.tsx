@@ -116,7 +116,7 @@ export default function VerificarPage() {
                 <div className="p-3 rounded-full bg-[#E8541A]/10 border border-[#E8541A]/20 w-fit mx-auto mb-3">
                   <ShieldCheck className="h-8 w-8 text-[#E8541A]" />
                 </div>
-                <p className="text-xs text-gray-400 uppercase tracking-wider">Codigo de verificacion</p>
+                <p className="text-xs text-gray-400 uppercase tracking-wider">Código de verificación</p>
                 <p className="font-mono text-lg text-white font-bold">{data.codigo}</p>
               </div>
 
@@ -144,9 +144,9 @@ export default function VerificarPage() {
               {(data.nota_teoria != null || data.nota_practica != null || data.asistencia_pct != null) && (
                 <>
                   <div className="space-y-3">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">Evaluacion</p>
-                    {data.nota_teoria != null && <DataRow label="Nota Teoria" value={data.nota_teoria.toFixed(1)} />}
-                    {data.nota_practica != null && <DataRow label="Nota Practica" value={data.nota_practica.toFixed(1)} />}
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">Evaluación</p>
+                    {data.nota_teoria != null && <DataRow label="Nota Teoría" value={data.nota_teoria.toFixed(1)} />}
+                    {data.nota_practica != null && <DataRow label="Nota Práctica" value={data.nota_practica.toFixed(1)} />}
                     {data.asistencia_pct != null && <DataRow label="Asistencia" value={`${data.asistencia_pct.toFixed(0)}%`} />}
                   </div>
                   <Separator className="bg-white/5" />
@@ -155,7 +155,7 @@ export default function VerificarPage() {
 
               {/* Fechas */}
               <div className="space-y-3">
-                <DataRow label="Fecha Emision" value={new Date(data.fecha_emision).toLocaleDateString("es-CL")} />
+                <DataRow label="Fecha Emisión" value={new Date(data.fecha_emision).toLocaleDateString("es-CL")} />
                 {data.fecha_vencimiento && (
                   <div className="flex justify-between items-start">
                     <span className="text-sm text-gray-400">Fecha Vencimiento</span>
@@ -188,7 +188,7 @@ export default function VerificarPage() {
         )}
 
         <p className="text-center text-xs text-gray-600 mt-6">
-          Sistema de verificacion de certificados Formacap
+          Sistema de verificación de certificados Formacap
         </p>
       </div>
     </div>
