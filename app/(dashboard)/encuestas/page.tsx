@@ -42,9 +42,9 @@ export default function EncuestasPage() {
   }, [])
 
   const estadoBadge = (a: any) => {
-    if (!a.encuesta) return <Badge className="bg-gray-500/20 text-gray-400">Sin crear</Badge>
-    if (a.encuesta.activa) return <Badge className="bg-emerald-500/20 text-emerald-400">Activa</Badge>
-    return <Badge className="bg-amber-500/20 text-amber-400">Inactiva</Badge>
+    if (!a.encuesta) return <Badge className="bg-[#DC2626] text-white">Sin crear</Badge>
+    if (a.encuesta.activa) return <Badge className="bg-[#16A34A] text-white">Activa</Badge>
+    return <Badge className="bg-[#6B7280] text-white">Inactiva</Badge>
   }
 
   return (

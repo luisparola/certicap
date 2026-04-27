@@ -13,8 +13,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { ArrowLeft, Plus, Upload, Award, Loader2, Users, Pencil, Trash2 } from "lucide-react"
 
 const TIPO_LABELS: Record<string, string> = { COMPETENCIAS: "Competencias", PUENTE_GRUA: "Puente Grua", RIGGER: "Rigger", SOLDADURA: "Soldadura" }
-const TIPO_COLORS: Record<string, string> = { COMPETENCIAS: "bg-blue-500/20 text-blue-400 border-blue-500/30", PUENTE_GRUA: "bg-purple-500/20 text-purple-400 border-purple-500/30", RIGGER: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", SOLDADURA: "bg-amber-500/20 text-amber-400 border-amber-500/30" }
-const ESTADO_COLORS: Record<string, string> = { APROBADO: "bg-emerald-500/20 text-emerald-400", REPROBADO: "bg-red-500/20 text-red-400", PENDIENTE: "bg-yellow-500/20 text-yellow-400" }
+const TIPO_COLORS: Record<string, string> = { COMPETENCIAS: "bg-[#2563EB] text-white", PUENTE_GRUA: "bg-[#E8541A] text-white", RIGGER: "bg-[#7C3AED] text-white", SOLDADURA: "bg-[#059669] text-white" }
+const ESTADO_COLORS: Record<string, string> = { APROBADO: "bg-[#16A34A] text-white", REPROBADO: "bg-[#DC2626] text-white", PENDIENTE: "bg-[#D97706] text-white" }
 
 export default function ActividadDetailPage() {
   const params = useParams()
@@ -116,7 +116,7 @@ export default function ActividadDetailPage() {
                         <TableCell className="text-gray-300">{p.nota_practica ?? "-"}</TableCell>
                         <TableCell className="text-gray-300">{p.asistencia_pct ? `${p.asistencia_pct}%` : "-"}</TableCell>
                         <TableCell><Badge className={ESTADO_COLORS[p.estado]}>{p.estado}</Badge></TableCell>
-                        <TableCell>{p.certificado ? <Badge className="bg-emerald-500/20 text-emerald-400">Emitido</Badge> : <Badge className="bg-gray-500/20 text-gray-400">Pendiente</Badge>}</TableCell>
+                        <TableCell>{p.certificado ? <Badge className="bg-[#16A34A] text-white">Emitido</Badge> : <Badge className="bg-[#D97706] text-white">Pendiente</Badge>}</TableCell>
                         <TableCell>
                           <div className="flex gap-1">
                             <Link href={`/actividades/${params.id}/participantes/${p.id}/editar`}>

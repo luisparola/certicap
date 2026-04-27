@@ -19,9 +19,9 @@ const ESTADO_LABELS: Record<string, string> = {
 }
 
 const ESTADO_COLORS: Record<string, string> = {
-  APROBADO: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  REPROBADO: "bg-red-500/20 text-red-400 border-red-500/30",
-  PENDIENTE: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+  APROBADO: "bg-[#16A34A] text-white",
+  REPROBADO: "bg-[#DC2626] text-white",
+  PENDIENTE: "bg-[#D97706] text-white",
 }
 
 function DataRow({ label, value }: { label: string; value: React.ReactNode }) {

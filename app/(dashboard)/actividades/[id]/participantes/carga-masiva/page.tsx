@@ -143,8 +143,8 @@ export default function CargaMasivaPage() {
       {rows.length > 0 && (
         <>
           <div className="flex items-center gap-4">
-            <Badge className="bg-emerald-500/20 text-emerald-400"><CheckCircle className="h-3 w-3 mr-1" />{validRows.length} validas</Badge>
-            {invalidRows.length > 0 && <Badge className="bg-red-500/20 text-red-400"><XCircle className="h-3 w-3 mr-1" />{invalidRows.length} con errores</Badge>}
+            <Badge className="bg-[#16A34A] text-white"><CheckCircle className="h-3 w-3 mr-1" />{validRows.length} validas</Badge>
+            {invalidRows.length > 0 && <Badge className="bg-[#DC2626] text-white"><XCircle className="h-3 w-3 mr-1" />{invalidRows.length} con errores</Badge>}
           </div>
           <Card className="glass-card border-white/10">
             <CardContent className="p-0">
@@ -157,7 +157,7 @@ export default function CargaMasivaPage() {
                       <TableCell className="text-white">{gf(row.data, "nombre_participante", "NOMBRE", "nombre") || "-"}</TableCell>
                       <TableCell className="text-gray-300">{gf(row.data, "rut_participante", "RUT", "rut") || "-"}</TableCell>
                       <TableCell className="text-gray-300">{gf(row.data, "estado", "ESTADO") || "PENDIENTE"}</TableCell>
-                      <TableCell>{row.valid ? <Badge className="bg-emerald-500/20 text-emerald-400">OK</Badge> : <span className="text-xs text-red-400">{row.errors.join(", ")}</span>}</TableCell>
+                      <TableCell>{row.valid ? <Badge className="bg-[#16A34A] text-white">OK</Badge> : <span className="text-xs text-red-400">{row.errors.join(", ")}</span>}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

@@ -275,7 +275,7 @@ export default function CertificadosActividadPage() {
                     </TableCell>
                     <TableCell className="text-white font-medium">{p.nombre}</TableCell>
                     <TableCell className="text-gray-300">{p.rut}</TableCell>
-                    <TableCell>{p.certificado ? <Badge className="bg-emerald-500/20 text-emerald-400">Emitido</Badge> : <Badge className="bg-amber-500/20 text-amber-400">Pendiente</Badge>}</TableCell>
+                    <TableCell>{p.certificado ? <Badge className="bg-[#16A34A] text-white">Emitido</Badge> : <Badge className="bg-[#D97706] text-white">Pendiente</Badge>}</TableCell>
                     <TableCell className="text-gray-300 font-mono text-xs">{p.certificado?.codigo || "-"}</TableCell>
                     <TableCell>
                       {p.certificado ? (

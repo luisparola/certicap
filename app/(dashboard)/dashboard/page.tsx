@@ -21,10 +21,10 @@ const TIPO_LABELS: Record<string, string> = {
   RIGGER: "Rigger", SOLDADURA: "Soldadura",
 }
 const TIPO_COLORS_BADGE: Record<string, string> = {
-  COMPETENCIAS: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  PUENTE_GRUA: "bg-[#E8541A]/20 text-[#E8541A] border-[#E8541A]/30",
-  RIGGER: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  SOLDADURA: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  COMPETENCIAS: "bg-[#2563EB] text-white",
+  PUENTE_GRUA: "bg-[#E8541A] text-white",
+  RIGGER: "bg-[#7C3AED] text-white",
+  SOLDADURA: "bg-[#059669] text-white",
 }
 const TIPO_CHART_COLORS: Record<string, string> = {
   COMPETENCIAS: "#3B82F6", PUENTE_GRUA: "#E8541A", RIGGER: "#10B981", SOLDADURA: "#8B5CF6",
@@ -90,9 +90,9 @@ function SatisfaccionBar({ nombre, promedio }: { nombre: string; promedio: numbe
 }
 
 function EncuestaBadge({ activa }: { activa: boolean | null }) {
-  if (activa === null) return <Badge className="bg-gray-500/20 text-gray-500 text-xs">Sin encuesta</Badge>
-  if (activa) return <Badge className="bg-emerald-500/20 text-emerald-400 text-xs">Activa</Badge>
-  return <Badge className="bg-amber-500/20 text-amber-400 text-xs">Inactiva</Badge>
+  if (activa === null) return <Badge className="bg-[#DC2626] text-white text-xs">Sin encuesta</Badge>
+  if (activa) return <Badge className="bg-[#16A34A] text-white text-xs">Activa</Badge>
+  return <Badge className="bg-[#6B7280] text-white text-xs">Inactiva</Badge>
 }
 
 // ── Main page ──────────────────────────────────────────────────────────────

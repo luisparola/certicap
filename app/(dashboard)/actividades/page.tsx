@@ -16,10 +16,10 @@ const TIPO_LABELS: Record<string, string> = {
   COMPETENCIAS: "Competencias", PUENTE_GRUA: "Puente Grua", RIGGER: "Rigger", SOLDADURA: "Soldadura",
 }
 const TIPO_COLORS: Record<string, string> = {
-  COMPETENCIAS: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  PUENTE_GRUA: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  RIGGER: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  SOLDADURA: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+  COMPETENCIAS: "bg-[#2563EB] text-white",
+  PUENTE_GRUA: "bg-[#E8541A] text-white",
+  RIGGER: "bg-[#7C3AED] text-white",
+  SOLDADURA: "bg-[#059669] text-white",
 }
 
 interface Actividad {
