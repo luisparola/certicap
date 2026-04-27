@@ -77,43 +77,43 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
 
   /* HEADER */
   table.header { width: 100%; border: 1pt solid #000; border-collapse: collapse; margin-bottom: 6pt; }
-  table.header td { border: 1pt solid #000; padding: 5pt 7pt; vertical-align: middle; }
+  table.header td { border: 1pt solid #000; padding: 10pt 8pt; vertical-align: middle; }
   .header-logo { width: 18%; }
   .header-title { width: 62%; text-align: center; }
-  .header-version { width: 20%; text-align: center; font-weight: bold; font-size: 8.5pt; line-height: 2; }
-  .header-sistema { font-weight: bold; font-size: 11pt; }
+  .header-version { width: 20%; text-align: center; font-weight: bold; font-size: 9pt; line-height: 2.2; }
+  .header-sistema { font-weight: bold; font-size: 13pt; }
   .header-cert {
-    color: #E8541A; font-weight: bold; font-size: 10pt;
-    border-top: 1pt solid #000; padding-top: 4pt; margin-top: 4pt;
+    color: #E8541A; font-weight: bold; font-size: 11pt;
+    border-top: 1pt solid #000; padding-top: 5pt; margin-top: 5pt;
   }
 
   /* SECTIONS */
-  .sec-title { font-size: 9.5pt; margin-top: 8pt; margin-bottom: 2pt; }
+  .sec-title { font-size: 10pt; margin-top: 10pt; margin-bottom: 3pt; }
   .sec-title.bold { font-weight: bold; }
 
   table.info { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
-  table.info td { border: 0.5pt solid #000; padding: 4pt 6pt; line-height: 1.3; }
+  table.info td { border: 0.5pt solid #000; padding: 6pt 7pt; line-height: 1.3; }
   table.info td.lbl { width: 28%; font-weight: bold; }
 
   /* NOTAS */
   table.notas { width: 100%; border-collapse: collapse; margin-top: 8pt; font-size: 9.5pt; }
-  table.notas td, table.notas th { border: 0.5pt solid #000; padding: 4pt 5pt; text-align: center; }
+  table.notas td, table.notas th { border: 0.5pt solid #000; padding: 6pt 5pt; text-align: center; }
   table.notas th { background: #D0D0D0; font-weight: bold; }
 
   /* FECHAS */
-  table.fechas { border-collapse: collapse; margin-top: 8pt; font-size: 9.5pt; }
-  table.fechas td { border: 0.5pt solid #000; padding: 4pt 6pt; }
-  table.fechas td.lbl { font-weight: bold; width: 160pt; }
+  table.fechas { width: 55%; border-collapse: collapse; margin-top: 8pt; font-size: 9.5pt; }
+  table.fechas td { border: 0.5pt solid #000; padding: 6pt 7pt; }
+  table.fechas td.lbl { font-weight: bold; width: 55%; }
 
   /* LEGAL */
-  .legal { margin-top: 16pt; font-size: 9pt; font-weight: bold; text-align: justify; line-height: 1.5; }
+  .legal { margin-top: 24pt; font-size: 9.5pt; font-weight: bold; text-align: justify; line-height: 1.6; }
 
   /* FIRMA FOOTER */
-  table.firma { width: 100%; border-collapse: collapse; margin-top: 14pt; }
-  table.firma td { width: 33.3%; text-align: center; vertical-align: bottom; padding: 3pt 5pt; }
+  table.firma { width: 100%; border-collapse: collapse; margin-top: 20pt; }
+  table.firma td { width: 33.3%; text-align: center; vertical-align: bottom; padding: 5pt 8pt; }
   .firma-linea { border-top: 1pt solid #000; width: 65%; margin: 0 auto; padding-top: 3pt; font-size: 9pt; }
   .qr-label { font-size: 7pt; font-weight: bold; margin-bottom: 4pt; }
-  .organismo { font-weight: bold; font-size: 12pt; margin-bottom: 4pt; }
+  .organismo { font-weight: bold; font-size: 13pt; margin-bottom: 6pt; }
 
   /* PIE — anchored to bottom */
   .pie {
@@ -140,10 +140,10 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
   /* OBS */
   .obs-box { border: 0.5pt solid #000; min-height: 36pt; padding: 4pt; margin-top: 2pt; font-size: 9pt; }
 
-  img.logo { width: 100%; max-height: 45pt; object-fit: contain; }
-  img.firma-img { height: 50pt; object-fit: contain; }
-  img.qr { width: 70pt; height: 70pt; }
-  img.logo-footer { height: 55pt; object-fit: contain; }
+  img.logo { width: 100%; max-height: 65pt; object-fit: contain; }
+  img.firma-img { height: 60pt; object-fit: contain; }
+  img.qr { width: 80pt; height: 80pt; }
+  img.logo-footer { height: 65pt; object-fit: contain; }
 </style>
 </head>
 <body>
