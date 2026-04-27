@@ -295,17 +295,18 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
   <!-- FIRMA / QR / LOGO -->
   <table class="firma">
     <tr>
-      <td style="width:50%; text-align:center; vertical-align:bottom">
-        <div class="qr-label">Consulta tu certificado:</div>
+      <td style="width:33%; text-align:left; vertical-align:bottom; padding:4pt 8pt">
+        <div style="font-size:7pt; font-weight:bold; margin-bottom:4pt">Consulta tu certificado:</div>
         <img class="qr" src="${d.qrBase64}" alt="QR"/>
       </td>
-      <td style="width:50%; text-align:center; vertical-align:bottom">
+      <td style="width:34%; text-align:center; vertical-align:bottom; padding:4pt 8pt">
         ${d.firmaBase64 ? `<img class="firma-img" src="${d.firmaBase64}" alt="Firma"/>` : ""}
-        <div class="firma-linea">
-          <div style="font-size:8pt">Alexander Quijada</div>
-          <div style="font-size:8pt">Gerente General</div>
+        <div style="border-top:1pt solid #000; width:70%; margin:0 auto; padding-top:3pt;">
+          <div style="font-size:8.5pt">Alexander Quijada</div>
+          <div style="font-size:8.5pt">Gerente General</div>
         </div>
       </td>
+      <td style="width:33%"></td>
     </tr>
   </table>
 
