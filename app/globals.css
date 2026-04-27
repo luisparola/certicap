@@ -84,21 +84,18 @@
 
 /* ══════════════════════════════════════════════════════════════════
    LIGHT MODE OVERRIDES
-   Targets the specific Tailwind arbitrary-value classes used
-   throughout the app so no component files need updating.
    ══════════════════════════════════════════════════════════════════ */
 
 html.light {
   color-scheme: light;
 }
 
-/* Page backgrounds */
+/* ── Backgrounds ────────────────────────────────────────────────── */
 html.light body,
 html.light .bg-\[\#0F0F0F\] {
   background-color: #F5F5F5;
 }
 
-/* Surface / sidebar / modal backgrounds */
 html.light .bg-\[\#1A1A1A\] {
   background-color: #FFFFFF;
 }
@@ -106,39 +103,38 @@ html.light .bg-\[\#1A1A1A\]\/80 {
   background-color: rgba(255, 255, 255, 0.97);
 }
 
-/* Glass cards become plain white cards */
 html.light .glass-card {
   background: #FFFFFF !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
+  border-color: #D0D0D0 !important;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-/* Borders: white/X → subtle dark */
-html.light .border-white\/5  { border-color: rgba(0, 0, 0, 0.06) !important; }
-html.light .border-white\/10 { border-color: rgba(0, 0, 0, 0.10) !important; }
-html.light .border-white\/20 { border-color: rgba(0, 0, 0, 0.15) !important; }
+/* ── Borders ────────────────────────────────────────────────────── */
+html.light .border-white\/5  { border-color: #E8E8E8 !important; }
+html.light .border-white\/10 { border-color: #D0D0D0 !important; }
+html.light .border-white\/20 { border-color: #BBBBBB !important; }
 
-/* Primary text */
-html.light .text-white { color: #1A1A1A; }
+/* ── Primary text: white → near-black ───────────────────────────── */
+html.light .text-white         { color: #1A1A1A; }
 html.light .hover\:text-white:hover { color: #1A1A1A; }
 
-/* Secondary / muted text */
-html.light .text-gray-300 { color: #555555; }
-html.light .text-gray-400 { color: #666666; }
-html.light .text-gray-500 { color: #888888; }
-html.light .text-gray-600 { color: #999999; }
+/* ── Secondary/muted text: grays → dark enough to read ─────────── */
+html.light .text-gray-300  { color: #444444; }
+html.light .text-gray-400  { color: #555555; }
+html.light .text-gray-500  { color: #666666; }
+html.light .text-gray-600  { color: #777777; }
+html.light .text-gray-700  { color: #333333; }
 
-/* Restore white text on explicitly colored backgrounds */
-html.light .bg-\[\#E8541A\],
-html.light .bg-\[\#E8541A\]\/90,
-html.light .bg-red-600,
-html.light .bg-red-700 {
-  color: #FFFFFF;
-}
+/* ── Restore white text on colored action backgrounds ────────────── */
+html.light .bg-\[\#E8541A\]         { color: #FFFFFF; }
+html.light .bg-\[\#E8541A\]\/90     { color: #FFFFFF; }
+html.light .bg-red-600              { color: #FFFFFF; }
+html.light .bg-red-700              { color: #FFFFFF; }
+html.light .bg-emerald-500          { color: #FFFFFF; }
 
-/* Inputs & textareas */
+/* ── Inputs & textareas ──────────────────────────────────────────── */
 html.light input,
 html.light textarea,
 html.light select {
@@ -148,42 +144,56 @@ html.light select {
 }
 html.light input::placeholder,
 html.light textarea::placeholder {
-  color: #AAAAAA !important;
+  color: #999999 !important;
 }
 
-/* Select trigger (shadcn) */
+/* ── Select / popover dropdowns ─────────────────────────────────── */
 html.light [data-radix-select-trigger],
 html.light .bg-\[\#0F0F0F\].border-white\/10 {
   background-color: #FFFFFF !important;
   border-color: #D0D0D0 !important;
   color: #1A1A1A !important;
 }
-
-/* Select / popover content */
 html.light [data-radix-select-content],
 html.light [data-radix-popover-content] {
   background-color: #FFFFFF !important;
   border-color: #E0E0E0 !important;
   color: #1A1A1A !important;
 }
-
-/* Table rows: hover & dividers */
-html.light .hover\:bg-white\/5:hover,
-html.light tr:hover td {
+html.light [data-radix-select-item] { color: #1A1A1A !important; }
+html.light [data-radix-select-item]:hover,
+html.light [data-radix-select-item][data-highlighted] {
   background-color: #F0F0F0 !important;
 }
-html.light .hover\:bg-transparent:hover { background-color: transparent !important; }
 
-/* Dialog overlay */
+/* ── Table rows ──────────────────────────────────────────────────── */
+html.light .hover\:bg-white\/5:hover,
+html.light tr:hover td { background-color: #F0F0F0 !important; }
+html.light .hover\:bg-transparent:hover { background-color: transparent !important; }
+html.light .hover\:bg-white\/5 { background-color: transparent; }
+
+/* ── Dialog ──────────────────────────────────────────────────────── */
 html.light [data-radix-dialog-overlay] {
   background-color: rgba(0, 0, 0, 0.4) !important;
 }
 
-/* Scrollbar */
+/* ── Sidebar ─────────────────────────────────────────────────────── */
+html.light aside {
+  background-color: #FFFFFF;
+  border-right-color: #E0E0E0;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────── */
 html.light ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.18); }
 html.light ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.28); }
 
-/* Sidebar right border in light mode */
-html.light aside {
-  border-right-color: #E5E5E5;
-}
+/* ── Tab triggers ────────────────────────────────────────────────── */
+html.light [role="tablist"] { background-color: #F0F0F0 !important; border-color: #D0D0D0 !important; }
+html.light [role="tab"] { color: #555555 !important; }
+html.light [role="tab"][data-state="active"] { color: #E8541A !important; }
+
+/* ── Separator ───────────────────────────────────────────────────── */
+html.light .bg-white\/5  { background-color: rgba(0,0,0,0.05); }
+
+/* ── Switch track ────────────────────────────────────────────────── */
+html.light [data-state="unchecked"][role="switch"] { background-color: #CCCCCC !important; }
