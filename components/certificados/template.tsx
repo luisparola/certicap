@@ -261,15 +261,14 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
   <table class="notas">
     <tr>
       <th colspan="${showSenales ? 3 : 2}">NOTAS</th>
-      <th>ASISTENCIA</th>
-      <th>N° REGISTRO</th>
-      <th>ESTADO</th>
+      <th rowspan="2">ASISTENCIA</th>
+      <th rowspan="2">N° REGISTRO</th>
+      <th rowspan="2">ESTADO</th>
     </tr>
     <tr>
       <th>TEORÍA</th>
       ${showSenales ? "<th>SEÑALES</th>" : ""}
       <th>PRÁCTICA</th>
-      <th></th><th></th><th></th>
     </tr>
     <tr>
       <td>${esc(d.nota_teoria)}</td>
@@ -296,18 +295,18 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
   <!-- FIRMA / QR / LOGO -->
   <table class="firma">
     <tr>
-      <td>
+      <td style="width:40%; text-align:left; padding-left:20pt; vertical-align:bottom">
         <div class="qr-label">Consulta tu certificado:</div>
         <img class="qr" src="${d.qrBase64}" alt="QR"/>
       </td>
-      <td>
+      <td style="width:35%; text-align:center; vertical-align:bottom">
         ${d.firmaBase64 ? `<img class="firma-img" src="${d.firmaBase64}" alt="Firma"/>` : ""}
         <div class="firma-linea">
-          <div style="font-weight:bold">Alexander Quijada</div>
+          <div style="font-size:8pt">Alexander Quijada</div>
           <div style="font-size:8pt">Gerente General</div>
         </div>
       </td>
-      <td>
+      <td style="width:25%; text-align:center; vertical-align:middle">
         <div class="organismo">ORGANISMO TÉCNICO</div>
         ${d.logoBase64 ? `<img class="logo-footer" src="${d.logoBase64}" alt="Formacap"/>` : ""}
       </td>

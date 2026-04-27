@@ -36,6 +36,18 @@ export async function renderCertificadoPDF(data: CertificadoData): Promise<Buffe
   const showVencimiento = tipo !== "COMPETENCIAS"
   const pagina = tipo === "PUENTE_GRUA" ? "1 de 2" : "1 de 1"
 
+  // Fallback: calculate vencimiento from emision if missing in DB
+  let fechaVencimientoFinal = certificado.fecha_vencimiento
+  if (!fechaVencimientoFinal && (tipo === "PUENTE_GRUA" || tipo === "RIGGER")) {
+    const fe = new Date(certificado.fecha_emision)
+    fe.setFullYear(fe.getFullYear() + 1)
+    fechaVencimientoFinal = fe
+  } else if (!fechaVencimientoFinal && tipo === "SOLDADURA") {
+    const fe = new Date(certificado.fecha_emision)
+    fe.setFullYear(fe.getFullYear() + 2)
+    fechaVencimientoFinal = fe
+  }
+
   const html = generarHTMLCertificado({
     tipo,
     logoBase64,
@@ -63,8 +75,8 @@ export async function renderCertificadoPDF(data: CertificadoData): Promise<Buffe
     foto_probeta_1: certificado.foto_probeta_1 ?? "",
     foto_probeta_2: certificado.foto_probeta_2 ?? "",
     fecha_emision: fmt(certificado.fecha_emision),
-    fecha_vencimiento: showVencimiento && certificado.fecha_vencimiento
-      ? fmt(certificado.fecha_vencimiento)
+    fecha_vencimiento: showVencimiento && fechaVencimientoFinal
+      ? fmt(fechaVencimientoFinal)
       : "",
   })
 
