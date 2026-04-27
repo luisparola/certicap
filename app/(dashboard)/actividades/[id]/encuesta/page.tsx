@@ -258,7 +258,7 @@ export default function GestionEncuestaPage() {
                     <LabelList
                       dataKey="promedio"
                       position="right"
-                      formatter={(v: number) => v.toFixed(1)}
+                      formatter={(v: any) => (typeof v === "number" ? v.toFixed(1) : v)}
                       style={{ fill: "#9ca3af", fontSize: 11 }}
                     />
                   </Bar>
