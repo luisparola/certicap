@@ -218,3 +218,24 @@ html.light .text-sm,
 html:not(.dark) .text-sm {
   color: #444444;
 }
+
+/* ── Botones primarios — texto siempre blanco ────────────────────── */
+.bg-primary,
+button.bg-primary,
+[class*="bg-primary"] {
+  color: #FFFFFF !important;
+}
+
+html .bg-primary           { color: #FFFFFF !important; }
+html:not(.dark) .bg-primary { color: #FFFFFF !important; }
+html.dark .bg-primary       { color: #FFFFFF !important; }
+
+/* Botones con fondo naranja explícito */
+html.light .bg-\[\#E8541A\],
+html.light .bg-\[\#E8541A\]\/90,
+html.light .hover\:bg-\[\#E8541A\]\/90:hover {
+  color: #FFFFFF !important;
+}
+
+/* Ensure primary-foreground text stays white on colored backgrounds */
+html.light .text-primary-foreground { color: #FFFFFF !important; }
