@@ -197,3 +197,24 @@ html.light .bg-white\/5  { background-color: rgba(0,0,0,0.05); }
 
 /* ── Switch track ────────────────────────────────────────────────── */
 html.light [data-state="unchecked"][role="switch"] { background-color: #CCCCCC !important; }
+
+/* ── Descriptive / muted text ────────────────────────────────────── */
+html.light .text-muted-foreground,
+html:not(.dark) .text-muted-foreground {
+  color: #444444 !important;
+}
+
+html.light p,
+html:not(.dark) p {
+  color: #333333;
+}
+
+html.light [class*="text-gray"],
+html:not(.dark) [class*="text-gray"] {
+  color: #444444 !important;
+}
+
+html.light .text-sm,
+html:not(.dark) .text-sm {
+  color: #444444;
+}
