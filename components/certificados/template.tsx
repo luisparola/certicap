@@ -173,7 +173,7 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
   </table>
 
   <!-- CURSO -->
-  <div class="sec-title">INFORMACIÓN DE CURSO</div>
+  <div class="sec-title bold">INFORMACIÓN DE CURSO</div>
   <table class="info">
     <tr><td class="lbl">NOMBRE:</td><td>${esc(d.nombre_curso)}</td></tr>
     <tr><td class="lbl">FECHA INICIO:</td><td>${esc(d.fecha_inicio)}</td></tr>
@@ -183,7 +183,7 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
   </table>
 
   <!-- PARTICIPANTE -->
-  <div class="sec-title">INFORMACIÓN PARTICIPANTE</div>
+  <div class="sec-title bold">INFORMACIÓN PARTICIPANTE</div>
   <table class="info">
     <tr><td class="lbl">NOMBRE:</td><td>${esc(d.nombre_participante)}</td></tr>
     <tr><td class="lbl">RUT:</td><td>${esc(d.rut_participante)}</td></tr>
@@ -191,13 +191,13 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
 
   ${isSoldadura ? `
   <!-- PROBETAS -->
-  <div class="sec-title">INFORMACIÓN DE PROBETAS</div>
+  <div class="sec-title bold">INFORMACIÓN DE PROBETAS</div>
   <table class="info">
     <tr><td class="lbl">ESPESOR/DIÁMETRO DE TUBERÍA:</td><td>${esc(d.espesor_diametro)}</td></tr>
     <tr><td class="lbl">APLICACIÓN DE SOLDADURA:</td><td>${esc(d.aplicacion_soldadura)}</td></tr>
   </table>
 
-  <div class="sec-title">FOTOS DE PROBETAS</div>
+  <div class="sec-title bold">FOTOS DE PROBETAS</div>
   <div class="fotos-wrap">
     ${d.foto_probeta_1 ? `<img src="${d.foto_probeta_1}" alt="Probeta 1"/>` : '<div class="foto-placeholder"></div>'}
     ${d.foto_probeta_2 ? `<img src="${d.foto_probeta_2}" alt="Probeta 2"/>` : '<div class="foto-placeholder"></div>'}
