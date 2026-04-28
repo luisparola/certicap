@@ -172,6 +172,11 @@ export default function ActividadDetailPage() {
                   {linkStats.acuerdo.totalFirmados} / {linkStats.acuerdo.totalParticipantes} participantes han firmado
                 </p>
               )}
+              <div className="flex gap-2">
+                <Link href={`/actividades/${params.id}/acuerdos`} className="flex-1">
+                  <Button size="sm" variant="outline" className="w-full border-white/10 text-gray-300 text-xs">Gestionar</Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
 

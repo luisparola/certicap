@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
 function normalizarRut(rut: string): string {
@@ -21,6 +23,21 @@ export async function GET(
 
     const totalParticipantes = await prisma.participante.count({ where: { actividadId: params.actividadId } })
     const totalFirmados = await prisma.acuerdoParticipante.count({ where: { actividadId: params.actividadId } })
+
+    // Admin: return full list (requires authentication + tenantId check)
+    if (searchParams.get("lista") === "1") {
+      const session = await getServerSession(authOptions)
+      if (!session?.user) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+      const tenantId = (session.user as any).tenantId
+      const actCheck = await prisma.actividad.findFirst({ where: { id: params.actividadId, tenantId } })
+      if (!actCheck) return NextResponse.json({ error: "No autorizado" }, { status: 403 })
+      const lista = await prisma.acuerdoParticipante.findMany({
+        where: { actividadId: params.actividadId },
+        include: { participante: { select: { nombre: true, rut: true, estado: true } } },
+        orderBy: { fecha: "desc" },
+      })
+      return NextResponse.json({ actividad, totalParticipantes, totalFirmados, lista })
+    }
 
     if (rutCheck) {
       const rutNorm = normalizarRut(rutCheck)
