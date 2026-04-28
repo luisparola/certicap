@@ -120,8 +120,8 @@ export default function ActividadDetailPage() {
                   ? <Badge className="bg-[#16A34A] text-white text-xs ml-auto">Activa</Badge>
                   : <Badge className="bg-[#6B7280] text-white text-xs ml-auto">Inactiva</Badge>}
               </div>
-              <div className="flex items-center gap-1 bg-[#0F0F0F]/60 rounded px-2 py-1">
-                <code className="text-xs text-[#E8541A] flex-1 truncate">{encUrl}</code>
+              <div className="flex items-center gap-1">
+                <div className="flex-1 overflow-hidden" style={{ background: '#F5F5F5', border: '1px solid #E0E0E0', borderRadius: '6px', padding: '8px 12px', fontSize: '12px', color: '#E8541A', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'default' }}>{encUrl}</div>
                 <CopyButton url={encUrl} />
               </div>
               <div className="flex gap-2">
@@ -140,8 +140,8 @@ export default function ActividadDetailPage() {
                 <span className="text-sm font-medium text-white">Acuerdo y Autorización</span>
                 <Badge className="bg-[#2563EB] text-white text-xs ml-auto">Disponible</Badge>
               </div>
-              <div className="flex items-center gap-1 bg-[#0F0F0F]/60 rounded px-2 py-1">
-                <code className="text-xs text-[#E8541A] flex-1 truncate">{acuUrl}</code>
+              <div className="flex items-center gap-1">
+                <div className="flex-1 overflow-hidden" style={{ background: '#F5F5F5', border: '1px solid #E0E0E0', borderRadius: '6px', padding: '8px 12px', fontSize: '12px', color: '#E8541A', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'default' }}>{acuUrl}</div>
                 <CopyButton url={acuUrl} />
               </div>
               {linkStats.acuerdo && (
@@ -162,8 +162,8 @@ export default function ActividadDetailPage() {
                   ? <Badge className="bg-[#16A34A] text-white text-xs ml-auto">Activa</Badge>
                   : <Badge className="bg-[#6B7280] text-white text-xs ml-auto">Inactiva</Badge>}
               </div>
-              <div className="flex items-center gap-1 bg-[#0F0F0F]/60 rounded px-2 py-1">
-                <code className="text-xs text-[#E8541A] flex-1 truncate">{evUrl}</code>
+              <div className="flex items-center gap-1">
+                <div className="flex-1 overflow-hidden" style={{ background: '#F5F5F5', border: '1px solid #E0E0E0', borderRadius: '6px', padding: '8px 12px', fontSize: '12px', color: '#E8541A', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'default' }}>{evUrl}</div>
                 <CopyButton url={evUrl} />
               </div>
               <div className="flex gap-2">
