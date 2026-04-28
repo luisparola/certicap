@@ -72,8 +72,11 @@ export default function AcuerdoPage() {
   const handleRutChange = (v: string) => {
     const f = formatRut(v)
     setRut(f)
-    setNombre("")
-    setNombreReadonly(false)
+    // Only reset name if it was auto-filled (readonly); preserve manually entered names
+    if (nombreReadonly) {
+      setNombre("")
+      setNombreReadonly(false)
+    }
     setRutError(f.length > 3 ? (validarRut(f) ? "" : "RUT inválido") : "")
   }
 
@@ -186,14 +189,14 @@ export default function AcuerdoPage() {
 
               <div className="space-y-2">
                 <p className="text-xs font-bold text-[#E8541A] uppercase tracking-wider">A — Deberes y Derechos del Participante</p>
-                <div className="h-44 overflow-y-auto bg-[#0F0F0F]/60 rounded-lg p-4 text-xs text-gray-300 leading-relaxed border border-white/5 whitespace-pre-line">
+                <div className="h-44 overflow-y-auto bg-white/[0.06] rounded-lg p-4 text-xs text-gray-200 leading-relaxed border border-white/10 whitespace-pre-line">
                   {TEXTO_DEBERES}
                 </div>
               </div>
 
               <div className="space-y-2">
                 <p className="text-xs font-bold text-[#E8541A] uppercase tracking-wider">B — Autorización de Datos — Ley 19.628</p>
-                <div className="h-44 overflow-y-auto bg-[#0F0F0F]/60 rounded-lg p-4 text-xs text-gray-300 leading-relaxed border border-white/5 whitespace-pre-line">
+                <div className="h-44 overflow-y-auto bg-white/[0.06] rounded-lg p-4 text-xs text-gray-200 leading-relaxed border border-white/10 whitespace-pre-line">
                   {TEXTO_DATOS}
                 </div>
               </div>
