@@ -75,10 +75,33 @@ export async function DELETE(
     const existing = await getParticipanteAutorizado(params.pid, tenantId)
     if (!existing) return NextResponse.json({ error: "No encontrado" }, { status: 404 })
 
-    if (existing.certificado) {
-      await prisma.certificado.delete({ where: { id: existing.certificado.id } })
-    }
-    await prisma.participante.delete({ where: { id: params.pid } })
+    const pid = params.pid
+
+    await prisma.$transaction(async (tx: any) => {
+      // 1. Certificado
+      await tx.certificado.deleteMany({ where: { participanteId: pid } })
+
+      // 2. Acuerdo
+      await tx.acuerdoParticipante.deleteMany({ where: { participanteId: pid } })
+
+      // 3. Respuestas de encuesta
+      const respEnc = await tx.respuestaEncuesta.findMany({ where: { participanteId: pid } })
+      for (const r of respEnc) {
+        await tx.respuestaPregunta.deleteMany({ where: { respuestaEncuestaId: r.id } })
+      }
+      await tx.respuestaEncuesta.deleteMany({ where: { participanteId: pid } })
+
+      // 4. Respuestas de evaluación
+      const respEval = await tx.respuestaEval.findMany({ where: { participanteId: pid } })
+      for (const r of respEval) {
+        await tx.respuestaEvalPregunta.deleteMany({ where: { respuestaEvalId: r.id } })
+      }
+      await tx.respuestaEval.deleteMany({ where: { participanteId: pid } })
+
+      // 5. Participante
+      await tx.participante.delete({ where: { id: pid } })
+    })
+
     return NextResponse.json({ message: "Participante eliminado" })
   } catch (error) {
     console.error("Error eliminando participante:", error)
