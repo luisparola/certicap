@@ -61,7 +61,21 @@ export async function POST(request: Request) {
     const tenantId = (session.user as any).tenantId
     const body = await request.json()
 
-    const PREGUNTAS_BASE = [
+    // Encuesta Participante — preguntas oficiales Formacap
+    const PREGUNTAS_PARTICIPANTE = [
+      { texto: "El contenido del curso fue interesante e importante para su trabajo", tipo: "escala" },
+      { texto: "Dinámica del curso",                                                   tipo: "escala" },
+      { texto: "Ambiente de Trabajo",                                                  tipo: "escala" },
+      { texto: "Comunicación y dominio de los contenidos por parte del Relator",      tipo: "escala" },
+      { texto: "Puntualidad del Relator",                                              tipo: "escala" },
+      { texto: "Se prestó a aclarar las duda o consultas de los participantes",       tipo: "escala" },
+      { texto: "Proyección de la Clase (Contenidos, nitidez, colores)",               tipo: "escala" },
+      { texto: "Que le pareció el trato que recibió como cliente",                    tipo: "escala" },
+      { texto: "Comentarios adicionales (opcional)",                                   tipo: "texto"  },
+    ]
+
+    // Encuesta Cliente — preguntas oficiales Formacap
+    const PREGUNTAS_CLIENTE = [
       { texto: "¿Cómo fue la atención general que se le brindó?",                              tipo: "escala" },
       { texto: "¿Se demostró conocimiento del o los servicios ofrecidos?",                     tipo: "escala" },
       { texto: "¿La persona administrativa, contestó de forma rápida y adecuada sus inquietudes?", tipo: "escala" },
@@ -90,13 +104,24 @@ export async function POST(request: Request) {
       })
 
       // Auto-create encuesta with official Formacap questions
+      // Auto-create encuesta participante
       await tx.encuesta.create({
         data: {
           actividadId: act.id,
           titulo: `Encuesta de Satisfacción — ${act.nombre_curso}`,
-          descripcion: "Escala: 1=Deficiente  2=Malo  3=Regular  4=Bueno  5=Excelente",
+          descripcion: "Escala: 1=Deficiente  2=Malo  3=Regular  4=Bueno  5=Excelente\nEn caso de calificación ≤ 3, agradecemos hacer su comentario al final.",
           activa: false,
-          preguntas: { create: PREGUNTAS_BASE.map((p, i) => ({ orden: i + 1, texto: p.texto, tipo: p.tipo })) },
+          preguntas: { create: PREGUNTAS_PARTICIPANTE.map((p: { texto: string; tipo: string }, i: number) => ({ orden: i + 1, texto: p.texto, tipo: p.tipo })) },
+        },
+      })
+
+      // Auto-create encuesta cliente
+      await (tx as any).encuestaCliente.create({
+        data: {
+          actividadId: act.id,
+          titulo: `Encuesta Cliente — ${act.nombre_curso}`,
+          activa: false,
+          preguntas: { create: PREGUNTAS_CLIENTE.map((p: { texto: string; tipo: string }, i: number) => ({ orden: i + 1, texto: p.texto, tipo: p.tipo })) },
         },
       })
 

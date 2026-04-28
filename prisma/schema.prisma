@@ -50,6 +50,7 @@ model Actividad {
   createdAt        DateTime              @default(now())
   participantes    Participante[]
   encuesta         Encuesta?
+  encuestaCliente  EncuestaCliente?
   evaluacion       Evaluacion?
   acuerdo          AcuerdoParticipante[]
 }
@@ -212,4 +213,47 @@ model RespuestaEvalPregunta {
   pregunta        PreguntaEval  @relation(fields: [preguntaId], references: [id])
   seleccionada    Int
   correcta        Boolean
+}
+
+// ── Encuesta de Satisfacción del Cliente (externa, sin RUT) ─────────
+model EncuestaCliente {
+  id          String                     @id @default(cuid())
+  actividadId String                     @unique
+  actividad   Actividad                  @relation(fields: [actividadId], references: [id])
+  titulo      String
+  activa      Boolean                    @default(false)
+  preguntas   PreguntaCliente[]
+  respuestas  RespuestaEncuestaCliente[]
+  createdAt   DateTime                   @default(now())
+}
+
+model PreguntaCliente {
+  id                String                      @id @default(cuid())
+  encuestaClienteId String
+  encuestaCliente   EncuestaCliente             @relation(fields: [encuestaClienteId], references: [id])
+  orden             Int
+  texto             String
+  tipo              String                      @default("escala")
+  respuestas        RespuestaPreguntaCliente[]
+}
+
+model RespuestaEncuestaCliente {
+  id                String                      @id @default(cuid())
+  encuestaClienteId String
+  encuestaCliente   EncuestaCliente             @relation(fields: [encuestaClienteId], references: [id])
+  nombre_empresa    String
+  nombre_contacto   String
+  completada        Boolean                     @default(false)
+  createdAt         DateTime                    @default(now())
+  respuestas        RespuestaPreguntaCliente[]
+}
+
+model RespuestaPreguntaCliente {
+  id                         String                   @id @default(cuid())
+  respuestaEncuestaClienteId String
+  respuestaEncuestaCliente   RespuestaEncuestaCliente @relation(fields: [respuestaEncuestaClienteId], references: [id])
+  preguntaId                 String
+  pregunta                   PreguntaCliente          @relation(fields: [preguntaId], references: [id])
+  valor                      Int                      @default(0)
+  valor_texto                String?
 }

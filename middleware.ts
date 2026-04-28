@@ -12,6 +12,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api/verificar") ||
     pathname.startsWith("/encuesta") ||
     pathname.startsWith("/api/encuestas") ||
+    pathname.startsWith("/encuesta-cliente") ||
+    pathname.startsWith("/api/encuestas-cliente") ||
     pathname.startsWith("/acuerdo") ||
     pathname.startsWith("/api/acuerdo") ||
     pathname.startsWith("/evaluacion") ||

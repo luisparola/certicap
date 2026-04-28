@@ -47,13 +47,14 @@ export default function ActividadDetailPage() {
 
   const fetchLinkStats = async () => {
     try {
-      const [encRes, evalRes, acuRes] = await Promise.all([
+      const [encRes, encClienteRes, evalRes, acuRes] = await Promise.all([
         fetch(`/api/encuestas/${params.id}/publica`),
+        fetch(`/api/encuestas-cliente/${params.id}/publica`),
         fetch(`/api/evaluacion/${params.id}/publica`),
         fetch(`/api/acuerdo/${params.id}`),
       ])
-      const [enc, ev, ac] = await Promise.all([encRes.json(), evalRes.json(), acuRes.json()])
-      setLinkStats({ encuesta: enc, evaluacion: ev, acuerdo: ac })
+      const [enc, encCliente, ev, ac] = await Promise.all([encRes.json(), encClienteRes.json(), evalRes.json(), acuRes.json()])
+      setLinkStats({ encuesta: enc, encuestaCliente: encCliente, evaluacion: ev, acuerdo: ac })
     } catch {}
   }
 
@@ -109,7 +110,7 @@ export default function ActividadDetailPage() {
       {/* Links de la Actividad */}
       <div>
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Links de la Actividad</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
           {/* Encuesta */}
           <Card className="glass-card border-white/10">
             <CardContent className="p-4 space-y-3">
@@ -126,6 +127,28 @@ export default function ActividadDetailPage() {
               </div>
               <div className="flex gap-2">
                 <Link href={`/actividades/${params.id}/encuesta`} className="flex-1">
+                  <Button size="sm" variant="outline" className="w-full border-white/10 text-gray-300 text-xs">Gestionar</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Encuesta Cliente */}
+          <Card className="glass-card border-white/10">
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <ClipboardList className="h-4 w-4 text-emerald-400" />
+                <span className="text-sm font-medium text-white">Encuesta Cliente</span>
+                {linkStats.encuestaCliente?.disponible
+                  ? <Badge className="bg-[#16A34A] text-white text-xs ml-auto">Activa</Badge>
+                  : <Badge className="bg-[#6B7280] text-white text-xs ml-auto">Inactiva</Badge>}
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="flex-1 overflow-hidden" style={{ background: '#F5F5F5', border: '1px solid #E0E0E0', borderRadius: '6px', padding: '8px 12px', fontSize: '12px', color: '#E8541A', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'default' }}>{`${baseUrl}/encuesta-cliente/${params.id}`}</div>
+                <CopyButton url={`${baseUrl}/encuesta-cliente/${params.id}`} />
+              </div>
+              <div className="flex gap-2">
+                <Link href={`/actividades/${params.id}/encuesta-cliente`} className="flex-1">
                   <Button size="sm" variant="outline" className="w-full border-white/10 text-gray-300 text-xs">Gestionar</Button>
                 </Link>
               </div>
