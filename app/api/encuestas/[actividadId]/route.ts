@@ -168,3 +168,34 @@ export async function PUT(
     return NextResponse.json({ error: "Error interno" }, { status: 500 })
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { actividadId: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user) return NextResponse.json({ error: "No autorizado" }, { status: 401 })
+    const tenantId = (session.user as any).tenantId
+
+    const actividad = await getTenant(params.actividadId, tenantId)
+    if (!actividad) return NextResponse.json({ error: "No encontrada" }, { status: 404 })
+
+    const encuesta = await prisma.encuesta.findUnique({ where: { actividadId: params.actividadId } })
+    if (!encuesta) return NextResponse.json({ error: "No encontrada" }, { status: 404 })
+
+    await prisma.$transaction(async (tx: any) => {
+      await tx.respuestaPregunta.deleteMany({
+        where: { respuestaEncuesta: { encuestaId: encuesta.id } },
+      })
+      await tx.respuestaEncuesta.deleteMany({ where: { encuestaId: encuesta.id } })
+      await tx.pregunta.deleteMany({ where: { encuestaId: encuesta.id } })
+      await tx.encuesta.delete({ where: { id: encuesta.id } })
+    })
+
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    console.error("Error eliminando encuesta:", error)
+    return NextResponse.json({ error: "Error interno" }, { status: 500 })
+  }
+}
