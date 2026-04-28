@@ -180,6 +180,7 @@ export default function ActividadDetailPage() {
         <TabsList className="bg-[#1A1A1A] border border-white/10">
           <TabsTrigger value="participantes" className="data-[state=active]:bg-[#E8541A]/10 data-[state=active]:text-[#E8541A]"><Users className="h-4 w-4 mr-2" />Participantes ({participantes.length})</TabsTrigger>
           <TabsTrigger value="certificados" className="data-[state=active]:bg-[#E8541A]/10 data-[state=active]:text-[#E8541A]"><Award className="h-4 w-4 mr-2" />Certificados ({conCert})</TabsTrigger>
+          <TabsTrigger value="acuerdos" className="data-[state=active]:bg-[#E8541A]/10 data-[state=active]:text-[#E8541A]"><FileText className="h-4 w-4 mr-2" />Acuerdos ({(actividad.acuerdo || []).length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="participantes">
@@ -248,6 +249,47 @@ export default function ActividadDetailPage() {
                 <div className="p-4 rounded-lg bg-emerald-500/5 border border-emerald-500/10"><p className="text-xs text-gray-400">Emitidos</p><p className="text-2xl font-bold text-emerald-400">{conCert}</p></div>
                 <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/10"><p className="text-xs text-gray-400">Pendientes</p><p className="text-2xl font-bold text-amber-400">{sinCert}</p></div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="acuerdos">
+          <Card className="glass-card border-white/10">
+            <CardHeader>
+              <CardTitle className="text-lg text-white">Acuerdos y Matrículas</CardTitle>
+              <p className="text-sm text-gray-400">{(actividad.acuerdo || []).length} participante{(actividad.acuerdo || []).length !== 1 ? "s" : ""} matriculado{(actividad.acuerdo || []).length !== 1 ? "s" : ""} vía acuerdo</p>
+            </CardHeader>
+            <CardContent className="p-0">
+              {(actividad.acuerdo || []).length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-white/5">
+                      <TableHead className="text-gray-400">Nombre</TableHead>
+                      <TableHead className="text-gray-400">RUT</TableHead>
+                      <TableHead className="text-gray-400">Fecha firma</TableHead>
+                      <TableHead className="text-gray-400">IP</TableHead>
+                      <TableHead className="text-gray-400">Estado</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {(actividad.acuerdo || []).map((a: any) => (
+                      <TableRow key={a.id} className="border-white/5">
+                        <TableCell className="text-white font-medium">{a.nombre}</TableCell>
+                        <TableCell className="text-gray-300 font-mono text-xs">{a.rut}</TableCell>
+                        <TableCell className="text-gray-300 text-sm">{new Date(a.fecha).toLocaleString("es-CL")}</TableCell>
+                        <TableCell className="text-gray-500 text-xs font-mono">{a.ip_address || "-"}</TableCell>
+                        <TableCell><Badge className="bg-[#16A34A] text-white text-xs">Firmado</Badge></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="text-center py-12">
+                  <FileText className="h-10 w-10 mx-auto text-gray-600 mb-3" />
+                  <p className="text-gray-400">Nadie ha firmado el acuerdo aún</p>
+                  <p className="text-gray-500 text-sm mt-1">Comparte el link de acuerdo para que los participantes se matriculen</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

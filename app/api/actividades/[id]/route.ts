@@ -23,6 +23,7 @@ export async function GET(
           include: { certificado: true },
           orderBy: { createdAt: "desc" },
         },
+        acuerdo: { orderBy: { fecha: "desc" } },
         _count: { select: { participantes: true } },
       },
     })
