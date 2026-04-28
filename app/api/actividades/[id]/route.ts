@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
 
 export async function GET(
   request: Request,
@@ -101,12 +100,28 @@ export async function DELETE(
       return NextResponse.json({ error: "Actividad no encontrada" }, { status: 404 })
     }
 
-    const encuesta = await prisma.encuesta.findUnique({
-      where: { actividadId: params.id },
-      select: { id: true },
-    })
+    await prisma.$transaction(async (tx: any) => {
+      const id = params.id
 
-    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      // 1. Evaluación cascade
+      const evaluacion = await tx.evaluacion.findUnique({
+        where: { actividadId: id },
+        include: { respuestas: true },
+      })
+      if (evaluacion) {
+        for (const resp of evaluacion.respuestas) {
+          await tx.respuestaEvalPregunta.deleteMany({ where: { respuestaEvalId: resp.id } })
+        }
+        await tx.respuestaEval.deleteMany({ where: { evaluacionId: evaluacion.id } })
+        await tx.preguntaEval.deleteMany({ where: { evaluacionId: evaluacion.id } })
+        await tx.evaluacion.delete({ where: { id: evaluacion.id } })
+      }
+
+      // 2. Acuerdos
+      await tx.acuerdoParticipante.deleteMany({ where: { actividadId: id } })
+
+      // 3. Encuesta cascade
+      const encuesta = await tx.encuesta.findUnique({ where: { actividadId: id } })
       if (encuesta) {
         await tx.respuestaPregunta.deleteMany({
           where: { respuestaEncuesta: { encuestaId: encuesta.id } },
@@ -115,9 +130,13 @@ export async function DELETE(
         await tx.pregunta.deleteMany({ where: { encuestaId: encuesta.id } })
         await tx.encuesta.delete({ where: { id: encuesta.id } })
       }
-      await tx.certificado.deleteMany({ where: { participante: { actividadId: params.id } } })
-      await tx.participante.deleteMany({ where: { actividadId: params.id } })
-      await tx.actividad.delete({ where: { id: params.id } })
+
+      // 4. Certificados y participantes
+      await tx.certificado.deleteMany({ where: { participante: { actividadId: id } } })
+      await tx.participante.deleteMany({ where: { actividadId: id } })
+
+      // 5. Actividad
+      await tx.actividad.delete({ where: { id } })
     })
 
     return NextResponse.json({ message: "Actividad eliminada" })

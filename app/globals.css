@@ -283,3 +283,21 @@ html.light .hover\:bg-\[\#E8541A\]\/90:hover {
 
 /* Ensure primary-foreground text stays white on colored backgrounds */
 html.light .text-primary-foreground { color: #FFFFFF !important; }
+
+/* ── Forzar texto blanco en botones con fondo de color ───────────── */
+button.bg-primary,
+a.bg-primary,
+[class*="bg-primary"]:not(input):not(div):not(span) {
+  color: #ffffff !important;
+}
+
+button.bg-destructive,
+button.bg-red-600,
+button.bg-red-500,
+button.bg-red-700 {
+  color: #ffffff !important;
+}
+
+button[class*="bg-\["] {
+  color: #ffffff !important;
+}
