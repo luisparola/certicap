@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
+function normalizarRut(rut: string): string {
+  return rut.trim().toUpperCase()
+}
+
 export async function GET(
   request: Request,
   { params }: { params: { actividadId: string } }
@@ -19,13 +23,20 @@ export async function GET(
     const totalFirmados = await prisma.acuerdoParticipante.count({ where: { actividadId: params.actividadId } })
 
     if (rutCheck) {
+      const rutNorm = normalizarRut(rutCheck)
       const acuerdo = await prisma.acuerdoParticipante.findUnique({
-        where: { actividadId_rut: { actividadId: params.actividadId, rut: rutCheck } },
+        where: { actividadId_rut: { actividadId: params.actividadId, rut: rutNorm } },
       })
       const participante = await prisma.participante.findFirst({
-        where: { actividadId: params.actividadId, rut: rutCheck },
+        where: { actividadId: params.actividadId, rut: rutNorm },
       })
-      return NextResponse.json({ actividad, totalParticipantes, totalFirmados, yaFirmo: !!acuerdo, yaMatriculado: !!participante, nombre: acuerdo?.nombre ?? participante?.nombre ?? null, fecha: acuerdo?.fecha ?? null })
+      return NextResponse.json({
+        actividad, totalParticipantes, totalFirmados,
+        yaFirmo: !!acuerdo,
+        yaMatriculado: !!participante,
+        nombre: acuerdo?.nombre ?? participante?.nombre ?? null,
+        fecha: acuerdo?.fecha ?? null,
+      })
     }
 
     return NextResponse.json({ actividad, totalParticipantes, totalFirmados })
@@ -45,46 +56,52 @@ export async function POST(
       return NextResponse.json({ error: "Faltan campos obligatorios" }, { status: 400 })
     }
 
+    // Normalize inputs for consistent DB storage
+    const rutNormalizado = normalizarRut(rut)
+    const nombreNormalizado = nombre.trim().toUpperCase()
+
     const actividad = await prisma.actividad.findUnique({
       where: { id: params.actividadId },
       select: { id: true, nombre_curso: true, empresa_nombre: true },
     })
     if (!actividad) return NextResponse.json({ error: "Actividad no encontrada" }, { status: 404 })
 
-    // Check if already signed
-    const existingAcuerdo = await prisma.acuerdoParticipante.findUnique({
-      where: { actividadId_rut: { actividadId: params.actividadId, rut } },
-    })
-    if (existingAcuerdo) {
-      return NextResponse.json({ error: "Ya firmaste este acuerdo", yaFirmo: true }, { status: 400 })
-    }
-
     const ip_address = request.headers.get("x-forwarded-for") ?? request.headers.get("x-real-ip") ?? null
 
-    // Auto-enroll: find or create participant
+    // 1. Find existing participant by normalized RUT
     let participante = await prisma.participante.findFirst({
-      where: { actividadId: params.actividadId, rut },
+      where: { actividadId: params.actividadId, rut: rutNormalizado },
     })
 
     const yaExistia = !!participante
 
+    // 2. Create participant if not found (auto-matricula)
     if (!participante) {
       participante = await prisma.participante.create({
         data: {
           actividadId: params.actividadId,
-          nombre,
-          rut,
+          nombre: nombreNormalizado,
+          rut: rutNormalizado,
           estado: "PENDIENTE",
         },
       })
     }
 
-    const acuerdo = await prisma.acuerdoParticipante.create({
-      data: {
+    // 3. Upsert acuerdo — also fixes legacy records with participanteId: null
+    const acuerdo = await prisma.acuerdoParticipante.upsert({
+      where: { actividadId_rut: { actividadId: params.actividadId, rut: rutNormalizado } },
+      create: {
         actividadId: params.actividadId,
         participanteId: participante.id,
-        nombre,
-        rut,
+        nombre: nombreNormalizado,
+        rut: rutNormalizado,
+        acepta_datos,
+        acepta_deberes,
+        ip_address,
+      },
+      update: {
+        participanteId: participante.id,
+        nombre: nombreNormalizado,
         acepta_datos,
         acepta_deberes,
         ip_address,
@@ -94,14 +111,13 @@ export async function POST(
     return NextResponse.json({
       success: true,
       nombre: participante.nombre,
-      rut,
+      rut: rutNormalizado,
       curso: actividad.nombre_curso,
       empresa: actividad.empresa_nombre,
       fecha: acuerdo.fecha,
       yaExistia,
     })
-  } catch (error: any) {
-    if (error?.code === "P2002") return NextResponse.json({ error: "Ya firmaste este acuerdo", yaFirmo: true }, { status: 400 })
+  } catch (error) {
     console.error("Error acuerdo POST:", error)
     return NextResponse.json({ error: "Error interno" }, { status: 500 })
   }
