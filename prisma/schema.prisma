@@ -35,9 +35,9 @@ enum Rol {
 }
 
 model Actividad {
-  id               String         @id @default(cuid())
+  id               String                @id @default(cuid())
   tenantId         String
-  tenant           Tenant         @relation(fields: [tenantId], references: [id])
+  tenant           Tenant                @relation(fields: [tenantId], references: [id])
   nombre_curso     String
   tipo_certificado TipoCert
   fecha_inicio     DateTime
@@ -47,9 +47,11 @@ model Actividad {
   empresa_nombre   String
   empresa_rut      String
   observaciones    String?
-  createdAt        DateTime       @default(now())
+  createdAt        DateTime              @default(now())
   participantes    Participante[]
   encuesta         Encuesta?
+  evaluacion       Evaluacion?
+  acuerdo          AcuerdoParticipante[]
 }
 
 enum TipoCert {
@@ -60,9 +62,9 @@ enum TipoCert {
 }
 
 model Participante {
-  id                 String              @id @default(cuid())
+  id                 String                @id @default(cuid())
   actividadId        String
-  actividad          Actividad           @relation(fields: [actividadId], references: [id])
+  actividad          Actividad             @relation(fields: [actividadId], references: [id])
   nombre             String
   rut                String
   nota_teoria        Float?
@@ -70,17 +72,19 @@ model Participante {
   asistencia_pct     Float?
   senales            String?
   nro_registro       String?
-  estado             Estado              @default(PENDIENTE)
+  estado             Estado                @default(PENDIENTE)
   marca_equipo       String?
   modelo_equipo      String?
   capacidad_equipo   String?
-  espesor_diametro     String?
+  espesor_diametro   String?
   aplicacion_soldadura String?
-  observaciones        String?
-  campos_extra         Json?
-  certificado          Certificado?
+  observaciones      String?
+  campos_extra       Json?
+  certificado        Certificado?
   respuestasEncuesta RespuestaEncuesta[]
-  createdAt          DateTime            @default(now())
+  acuerdo            AcuerdoParticipante[]
+  respuestasEval     RespuestaEval[]
+  createdAt          DateTime              @default(now())
 }
 
 enum Estado {
@@ -142,4 +146,68 @@ model RespuestaPregunta {
   preguntaId          String
   pregunta            Pregunta          @relation(fields: [preguntaId], references: [id])
   valor               Int
+}
+
+// ── Acuerdo de Deberes/Derechos y Autorización Ley 19.628 ──────────
+model AcuerdoParticipante {
+  id             String        @id @default(cuid())
+  actividadId    String
+  actividad      Actividad     @relation(fields: [actividadId], references: [id])
+  participanteId String?
+  participante   Participante? @relation(fields: [participanteId], references: [id])
+  nombre         String
+  rut            String
+  acepta_datos   Boolean       @default(false)
+  acepta_deberes Boolean       @default(false)
+  ip_address     String?
+  fecha          DateTime      @default(now())
+
+  @@unique([actividadId, rut])
+}
+
+// ── Evaluación de alternativas ─────────────────────────────────────
+model Evaluacion {
+  id           String          @id @default(cuid())
+  actividadId  String          @unique
+  actividad    Actividad       @relation(fields: [actividadId], references: [id])
+  titulo       String
+  activa       Boolean         @default(false)
+  preguntas    PreguntaEval[]
+  respuestas   RespuestaEval[]
+  createdAt    DateTime        @default(now())
+}
+
+model PreguntaEval {
+  id           String                  @id @default(cuid())
+  evaluacionId String
+  evaluacion   Evaluacion              @relation(fields: [evaluacionId], references: [id])
+  orden        Int
+  texto        String
+  alternativas String[]
+  correcta     Int
+  respuestas   RespuestaEvalPregunta[]
+}
+
+model RespuestaEval {
+  id             String                  @id @default(cuid())
+  evaluacionId   String
+  evaluacion     Evaluacion              @relation(fields: [evaluacionId], references: [id])
+  participanteId String
+  participante   Participante            @relation(fields: [participanteId], references: [id])
+  puntaje        Float
+  completada     Boolean                 @default(false)
+  createdAt      DateTime                @default(now())
+  respuestas     RespuestaEvalPregunta[]
+
+  @@unique([evaluacionId, participanteId])
+}
+
+model RespuestaEvalPregunta {
+  id              String        @id @default(cuid())
+  respuestaEvalId String
+  respuestaEval   RespuestaEval @relation(fields: [respuestaEvalId], references: [id])
+  preguntaId      String
+  pregunta        PreguntaEval  @relation(fields: [preguntaId], references: [id])
+  seleccionada    Int
+  correcta        Boolean
 }
