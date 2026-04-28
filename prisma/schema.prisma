@@ -125,6 +125,7 @@ model Pregunta {
   encuesta   Encuesta            @relation(fields: [encuestaId], references: [id])
   orden      Int
   texto      String
+  tipo       String              @default("escala") // "escala" | "sino" | "texto"
   respuestas RespuestaPregunta[]
 }
 
@@ -145,7 +146,8 @@ model RespuestaPregunta {
   respuestaEncuesta   RespuestaEncuesta @relation(fields: [respuestaEncuestaId], references: [id])
   preguntaId          String
   pregunta            Pregunta          @relation(fields: [preguntaId], references: [id])
-  valor               Int
+  valor               Int               @default(0)
+  valor_texto         String?
 }
 
 // ── Acuerdo de Deberes/Derechos y Autorización Ley 19.628 ──────────

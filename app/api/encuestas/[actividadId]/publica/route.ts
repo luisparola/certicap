@@ -16,7 +16,18 @@ export async function GET(
   try {
     const encuesta = await prisma.encuesta.findUnique({
       where: { actividadId: params.actividadId },
-      include: { preguntas: { orderBy: { orden: "asc" } } },
+      include: {
+        preguntas: { orderBy: { orden: "asc" } },
+        actividad: {
+          select: {
+            nombre_curso: true,
+            empresa_nombre: true,
+            instructor: true,
+            fecha_inicio: true,
+            fecha_termino: true,
+          },
+        },
+      },
     })
 
     if (!encuesta || !encuesta.activa) {
@@ -28,7 +39,13 @@ export async function GET(
       id: encuesta.id,
       titulo: encuesta.titulo,
       descripcion: encuesta.descripcion,
-      preguntas: encuesta.preguntas.map((p) => ({ id: p.id, orden: p.orden, texto: p.texto })),
+      actividad: encuesta.actividad,
+      preguntas: encuesta.preguntas.map((p) => ({
+        id: p.id,
+        orden: p.orden,
+        texto: p.texto,
+        tipo: p.tipo,
+      })),
     }, { headers })
   } catch (error) {
     console.error("Error obteniendo encuesta pública:", error)

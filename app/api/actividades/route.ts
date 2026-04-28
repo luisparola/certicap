@@ -62,12 +62,15 @@ export async function POST(request: Request) {
     const body = await request.json()
 
     const PREGUNTAS_BASE = [
-      "¿Cómo evalúa el contenido del curso?",
-      "¿Cómo evalúa al instructor/relator?",
-      "¿Cómo evalúa la metodología utilizada?",
-      "¿Cómo evalúa los materiales entregados?",
-      "¿Cómo evalúa las instalaciones o plataforma utilizada?",
-      "¿Recomendaría este curso a otras personas?",
+      { texto: "¿Cómo fue la atención general que se le brindó?",                              tipo: "escala" },
+      { texto: "¿Se demostró conocimiento del o los servicios ofrecidos?",                     tipo: "escala" },
+      { texto: "¿La persona administrativa, contestó de forma rápida y adecuada sus inquietudes?", tipo: "escala" },
+      { texto: "¿Qué le pareció el servicio en general brindado?",                             tipo: "escala" },
+      { texto: "¿El servicio prestado, cumplió con sus expectativas?",                         tipo: "escala" },
+      { texto: "¿Se cumplió con lo planificado en el Servicio?",                               tipo: "escala" },
+      { texto: "¿Recomendaría al organismo de capacitación?",                                  tipo: "sino"   },
+      { texto: "¿Compraría otro servicio al organismo?",                                       tipo: "sino"   },
+      { texto: "Observaciones: ¿Qué otros cursos le gustarían tomar?",                         tipo: "texto"  },
     ]
 
     const actividad = await prisma.$transaction(async (tx) => {
@@ -86,14 +89,14 @@ export async function POST(request: Request) {
         },
       })
 
-      // Auto-create encuesta with base questions
+      // Auto-create encuesta with official Formacap questions
       await tx.encuesta.create({
         data: {
           actividadId: act.id,
           titulo: `Encuesta de Satisfacción — ${act.nombre_curso}`,
-          descripcion: "Por favor evalúe los aspectos del curso en una escala del 1 al 5.",
+          descripcion: "Escala: 1=Deficiente  2=Malo  3=Regular  4=Bueno  5=Excelente",
           activa: false,
-          preguntas: { create: PREGUNTAS_BASE.map((texto, i) => ({ orden: i + 1, texto })) },
+          preguntas: { create: PREGUNTAS_BASE.map((p, i) => ({ orden: i + 1, texto: p.texto, tipo: p.tipo })) },
         },
       })
 
