@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { getClientIp, rateLimit } from "@/lib/ratelimit"
 
 export async function POST(request: Request, { params }: { params: { actividadId: string } }) {
   try {
+    const ip = getClientIp(request)
+    const { allowed } = rateLimit(`enc-cliente:${ip}`, 3, 60_000)
+    if (!allowed) {
+      return NextResponse.json({ error: "Demasiadas solicitudes." }, { status: 429 })
+    }
+
     const { nombre_empresa, nombre_contacto, respuestas } = await request.json()
     if (!nombre_empresa || !nombre_contacto) {
       return NextResponse.json({ error: "Nombre empresa y contacto son obligatorios" }, { status: 400 })

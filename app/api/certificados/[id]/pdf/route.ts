@@ -38,8 +38,8 @@ export async function GET(
         "Content-Disposition": `attachment; filename="certificado-${certificado.codigo}.pdf"`,
       },
     })
-  } catch (error: any) {
-    console.error("Error generando PDF:", error)
-    return NextResponse.json({ error: error?.message ?? "Error generando PDF" }, { status: 500 })
+  } catch (error) {
+    console.error("[certificado-pdf]", error instanceof Error ? error.message : error)
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 })
   }
 }

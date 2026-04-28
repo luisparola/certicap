@@ -23,7 +23,9 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: { remotePatterns: [] },
-  serverExternalPackages: ["puppeteer-core", "@sparticuz/chromium-min"],
+  experimental: {
+    serverComponentsExternalPackages: ["puppeteer-core", "@sparticuz/chromium-min"],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }]
   },

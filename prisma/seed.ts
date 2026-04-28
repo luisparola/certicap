@@ -22,7 +22,10 @@ async function main() {
   console.log("Tenant creado:", tenant.nombre)
 
   // Crear usuario admin
-  const hashedPassword = await bcrypt.hash("Formacap2026!", 12)
+  const password = process.env.SEED_ADMIN_PASSWORD
+  if (!password) throw new Error("SEED_ADMIN_PASSWORD es requerido. Agregalo al .env")
+
+  const hashedPassword = await bcrypt.hash(password, 12)
 
   const admin = await prisma.usuario.upsert({
     where: { email: "admin@formacap.cl" },

@@ -3,6 +3,12 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
+const TIPOS_CERTIFICADO = ["COMPETENCIAS", "PUENTE_GRUA", "RIGGER", "SOLDADURA"] as const
+
+function isNonEmptyString(value: unknown, maxLength: number): value is string {
+  return typeof value === "string" && value.trim().length > 0 && value.length <= maxLength
+}
+
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,8 +20,10 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const tipo = searchParams.get("tipo")
     const busqueda = searchParams.get("busqueda")
-    const page = parseInt(searchParams.get("page") || "1")
-    const limit = parseInt(searchParams.get("limit") || "20")
+    const parsedPage = parseInt(searchParams.get("page") || "1", 10)
+    const parsedLimit = parseInt(searchParams.get("limit") || "20", 10)
+    const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1
+    const limit = Math.min(Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 20, 100)
 
     const where: any = { tenantId }
     if (tipo) where.tipo_certificado = tipo
@@ -60,6 +68,20 @@ export async function POST(request: Request) {
 
     const tenantId = (session.user as any).tenantId
     const body = await request.json()
+    const { nombre_curso, tipo_certificado, empresa_nombre, empresa_rut } = body
+
+    if (!isNonEmptyString(nombre_curso, 200)) {
+      return NextResponse.json({ error: "Nombre de curso invalido" }, { status: 400 })
+    }
+    if (!TIPOS_CERTIFICADO.includes(tipo_certificado)) {
+      return NextResponse.json({ error: "Tipo invalido" }, { status: 400 })
+    }
+    if (!isNonEmptyString(empresa_nombre, 200)) {
+      return NextResponse.json({ error: "Empresa invalida" }, { status: 400 })
+    }
+    if (!isNonEmptyString(empresa_rut, 20)) {
+      return NextResponse.json({ error: "RUT de empresa invalido" }, { status: 400 })
+    }
 
     // Encuesta Participante — preguntas oficiales Formacap
     const PREGUNTAS_PARTICIPANTE = [
@@ -91,14 +113,14 @@ export async function POST(request: Request) {
       const act = await tx.actividad.create({
         data: {
           tenantId,
-          nombre_curso: body.nombre_curso,
-          tipo_certificado: body.tipo_certificado,
+          nombre_curso,
+          tipo_certificado,
           fecha_inicio: new Date(body.fecha_inicio),
           fecha_termino: new Date(body.fecha_termino),
           lugar: body.lugar,
           instructor: body.instructor,
-          empresa_nombre: body.empresa_nombre,
-          empresa_rut: body.empresa_rut,
+          empresa_nombre,
+          empresa_rut,
           observaciones: body.observaciones || null,
         },
       })

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getClientIp, rateLimit } from "@/lib/ratelimit"
 
 function normalizarRut(rut: string): string {
   return rut.trim().toUpperCase()
@@ -44,14 +45,9 @@ export async function GET(
       const acuerdo = await prisma.acuerdoParticipante.findUnique({
         where: { actividadId_rut: { actividadId: params.actividadId, rut: rutNorm } },
       })
-      const participante = await prisma.participante.findFirst({
-        where: { actividadId: params.actividadId, rut: rutNorm },
-      })
       return NextResponse.json({
         actividad, totalParticipantes, totalFirmados,
         yaFirmo: !!acuerdo,
-        yaMatriculado: !!participante,
-        nombre: acuerdo?.nombre ?? participante?.nombre ?? null,
         fecha: acuerdo?.fecha ?? null,
       })
     }
@@ -68,6 +64,12 @@ export async function POST(
   { params }: { params: { actividadId: string } }
 ) {
   try {
+    const ip = getClientIp(request)
+    const { allowed } = rateLimit(`acuerdo:${ip}`, 5, 60_000)
+    if (!allowed) {
+      return NextResponse.json({ error: "Demasiadas solicitudes." }, { status: 429 })
+    }
+
     const { rut, nombre, acepta_datos, acepta_deberes } = await request.json()
     if (!rut || !nombre || !acepta_datos || !acepta_deberes) {
       return NextResponse.json({ error: "Faltan campos obligatorios" }, { status: 400 })

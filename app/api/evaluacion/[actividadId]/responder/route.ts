@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { getClientIp, rateLimit } from "@/lib/ratelimit"
 
 export async function POST(request: Request, { params }: { params: { actividadId: string } }) {
   try {
+    const ip = getClientIp(request)
+    const { allowed } = rateLimit(`eval-responder:${ip}`, 3, 60_000)
+    if (!allowed) {
+      return NextResponse.json({ error: "Demasiadas solicitudes." }, { status: 429 })
+    }
+
     const { rut, respuestas } = await request.json()
     // respuestas: [{ preguntaId, seleccionada }]
 

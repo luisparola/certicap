@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { corsHeaders, handleOptions } from "@/lib/cors"
+import { getClientIp, rateLimit } from "@/lib/ratelimit"
 
 export async function OPTIONS(request: Request) {
   return handleOptions(request)
@@ -14,6 +15,12 @@ export async function POST(
   const headers = corsHeaders(origin)
 
   try {
+    const ip = getClientIp(request)
+    const { allowed } = rateLimit(`enc-responder:${ip}`, 3, 60_000)
+    if (!allowed) {
+      return NextResponse.json({ error: "Demasiadas solicitudes." }, { status: 429, headers })
+    }
+
     const { rut, respuestas } = await request.json()
     // respuestas: [{ preguntaId, valor?, valor_texto? }]
 

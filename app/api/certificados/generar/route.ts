@@ -6,6 +6,30 @@ import { generarCodigo } from "@/lib/certificado"
 import { generarQR } from "@/lib/qr"
 import { renderCertificadoPDF } from "@/lib/pdf"
 
+const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp"]
+const MAX_SIZE = 5 * 1024 * 1024
+
+function isAllowedDataUri(value: string): boolean {
+  return ALLOWED_MIME.some((mime) => value.startsWith(`data:${mime};base64,`))
+}
+
+function validateImageDataUri(value: string): NextResponse | null {
+  if (!isAllowedDataUri(value)) {
+    return NextResponse.json({ error: "Formato no permitido" }, { status: 400 })
+  }
+  if (value.length * 0.75 > MAX_SIZE) {
+    return NextResponse.json({ error: "Imagen muy grande" }, { status: 400 })
+  }
+  return null
+}
+
+function validateImageFile(file: File): NextResponse | null {
+  if (!ALLOWED_MIME.includes(file.type) || file.size > MAX_SIZE) {
+    return NextResponse.json({ error: "Imagen invalida" }, { status: 400 })
+  }
+  return null
+}
+
 async function fileToDataUri(file: File): Promise<string> {
   const buf = Buffer.from(await file.arrayBuffer())
   return `data:${file.type};base64,${buf.toString("base64")}`
@@ -27,13 +51,27 @@ export async function POST(request: Request) {
       participanteId = fd.get("participanteId") as string
       const f1 = fd.get("foto_probeta_1") as File | null
       const f2 = fd.get("foto_probeta_2") as File | null
-      if (f1 instanceof File) foto_probeta_1 = await fileToDataUri(f1)
-      if (f2 instanceof File) foto_probeta_2 = await fileToDataUri(f2)
+      if (f1 instanceof File && f1.size > 0) {
+        const invalid = validateImageFile(f1)
+        if (invalid) return invalid
+        foto_probeta_1 = await fileToDataUri(f1)
+      }
+      if (f2 instanceof File && f2.size > 0) {
+        const invalid = validateImageFile(f2)
+        if (invalid) return invalid
+        foto_probeta_2 = await fileToDataUri(f2)
+      }
     } else {
       const body = await request.json()
       participanteId = body.participanteId
       foto_probeta_1 = body.foto_probeta_1 || null
       foto_probeta_2 = body.foto_probeta_2 || null
+      for (const foto of [foto_probeta_1, foto_probeta_2]) {
+        if (typeof foto === "string") {
+          const invalid = validateImageDataUri(foto)
+          if (invalid) return invalid
+        }
+      }
     }
 
     const participante = await prisma.participante.findFirst({
@@ -91,11 +129,8 @@ export async function POST(request: Request) {
         "X-Certificado-Codigo": codigo,
       },
     })
-  } catch (error: any) {
-    console.error("Error generando certificado:", error)
-    return NextResponse.json({
-      error: error?.message ?? "Error al generar certificado",
-      stack: error?.stack,
-    }, { status: 500 })
+  } catch (error) {
+    console.error("[generar-certificado]", error instanceof Error ? error.message : error)
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 })
   }
 }

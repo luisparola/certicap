@@ -53,6 +53,10 @@ model Actividad {
   encuestaCliente  EncuestaCliente?
   evaluacion       Evaluacion?
   acuerdo          AcuerdoParticipante[]
+
+  @@index([tenantId])
+  @@index([tenantId, tipo_certificado])
+  @@index([createdAt])
 }
 
 enum TipoCert {
@@ -86,6 +90,9 @@ model Participante {
   acuerdo            AcuerdoParticipante[]
   respuestasEval     RespuestaEval[]
   createdAt          DateTime              @default(now())
+
+  @@index([actividadId, rut])
+  @@index([rut])
 }
 
 enum Estado {
@@ -106,6 +113,8 @@ model Certificado {
   fecha_vencimiento DateTime?
   qr_url            String?
   createdAt         DateTime     @default(now())
+
+  @@index([fecha_emision])
 }
 
 model Encuesta {
@@ -139,6 +148,8 @@ model RespuestaEncuesta {
   completada     Boolean             @default(false)
   createdAt      DateTime            @default(now())
   respuestas     RespuestaPregunta[]
+
+  @@index([encuestaId])
 }
 
 model RespuestaPregunta {
@@ -166,6 +177,8 @@ model AcuerdoParticipante {
   fecha          DateTime      @default(now())
 
   @@unique([actividadId, rut])
+  @@index([actividadId])
+  @@index([rut])
 }
 
 // ── Evaluación de alternativas ─────────────────────────────────────
