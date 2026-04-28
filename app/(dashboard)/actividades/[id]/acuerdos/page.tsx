@@ -8,24 +8,43 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/use-toast"
-import { ArrowLeft, Copy, Download, Loader2, FileText, CheckCircle2, XCircle } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { ArrowLeft, Copy, Download, Loader2, FileText, CheckCircle2, XCircle, Trash2 } from "lucide-react"
 
 export default function GestionAcuerdosPage() {
   const params = useParams()
   const { toast } = useToast()
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; acuerdoId: string; nombre: string }>({ open: false, acuerdoId: "", nombre: "" })
+  const [deleting, setDeleting] = useState(false)
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : ""
   const urlPublica = `${baseUrl}/acuerdo/${params.id}`
 
-  useEffect(() => {
+  const fetchData = () => {
+    setLoading(true)
     fetch(`/api/acuerdo/${params.id}?lista=1`)
       .then((r) => r.json())
       .then(setData)
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [params.id])
+  }
+
+  useEffect(() => { fetchData() }, [params.id])
+
+  const handleDelete = async () => {
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/acuerdo/${params.id}/${deleteDialog.acuerdoId}`, { method: "DELETE" })
+      if (!res.ok) throw new Error("Error")
+      toast({ title: "Acuerdo y participante eliminados" })
+      setDeleteDialog({ open: false, acuerdoId: "", nombre: "" })
+      fetchData()
+    } catch {
+      toast({ variant: "destructive", title: "Error", description: "No se pudo eliminar." })
+    } finally { setDeleting(false) }
+  }
 
   const copiarUrl = () => {
     navigator.clipboard.writeText(urlPublica)
@@ -133,6 +152,7 @@ export default function GestionAcuerdosPage() {
                     <th className="text-center text-gray-400 px-4 py-3">Deberes</th>
                     <th className="text-center text-gray-400 px-4 py-3">Datos</th>
                     <th className="text-left text-gray-400 px-4 py-3">Estado</th>
+                    <th className="text-gray-400 px-4 py-3"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -155,6 +175,12 @@ export default function GestionAcuerdosPage() {
                       <td className="px-4 py-3">
                         <Badge className="bg-[#16A34A] text-white text-xs">Firmado</Badge>
                       </td>
+                      <td className="px-4 py-3">
+                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-red-400"
+                          onClick={() => setDeleteDialog({ open: true, acuerdoId: a.id, nombre: a.nombre })}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -169,6 +195,21 @@ export default function GestionAcuerdosPage() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={deleteDialog.open} onOpenChange={(open) => { if (!open) setDeleteDialog({ open: false, acuerdoId: "", nombre: "" }) }}>
+        <DialogContent className="bg-[#1A1A1A] border-white/10 text-white max-w-md">
+          <DialogHeader><DialogTitle className="text-white">Eliminar Acuerdo</DialogTitle></DialogHeader>
+          <p className="text-gray-300 text-sm">
+            ¿Eliminar el acuerdo de <span className="font-semibold text-white">{deleteDialog.nombre}</span>? El participante también será eliminado de la actividad.
+          </p>
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={() => setDeleteDialog({ open: false, acuerdoId: "", nombre: "" })} disabled={deleting} className="text-gray-400">Cancelar</Button>
+            <Button onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700 text-white">
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Trash2 className="h-4 w-4 mr-2" />Eliminar</>}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
