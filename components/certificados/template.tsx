@@ -72,6 +72,8 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
     width: 210mm;
     min-height: 297mm;
     padding: 14mm 16mm 12mm 16mm;
+    display: flex;
+    flex-direction: column;
   }
 
   /* HEADER */
@@ -114,9 +116,10 @@ export function generarHTMLCertificado(d: HtmlCertData): string {
   .qr-label { font-size: 7pt; font-weight: bold; margin-bottom: 4pt; }
   .organismo { font-weight: bold; font-size: 13pt; margin-bottom: 6pt; }
 
-  /* PIE — flujo normal al final del contenido */
+  /* PIE — siempre al fondo: margin-top:auto lo empuja en flex */
   .pie {
-    margin-top: 16pt;
+    margin-top: auto;
+    padding-top: 14pt;
     text-align: center;
     font-size: 8pt;
     line-height: 1.7;
