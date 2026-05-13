@@ -78,7 +78,9 @@ export async function GET() {
     })
 
     const satisfaccion_por_actividad = encuestasConResp.map((e) => {
-      const vals = e.respuestas.flatMap((r) => r.respuestas.map((rp: { valor: number }) => rp.valor))
+      const vals = e.respuestas
+        .flatMap((r) => r.respuestas.map((rp: { valor: number }) => rp.valor))
+        .filter((v: number) => v > 0)
       const promedio = vals.length ? Math.round((vals.reduce((a: number, b: number) => a + b, 0) / vals.length) * 10) / 10 : 0
       return { nombre: e.actividad.nombre_curso, promedio, total_respuestas: e.respuestas.length }
     })
@@ -98,11 +100,15 @@ export async function GET() {
     let peor_pregunta: { texto: string; promedio: number } | null = null
 
     if (todasRespPregunta.length > 0) {
-      satisfaccion_general =
-        Math.round((todasRespPregunta.reduce((a: number, r: { valor: number }) => a + r.valor, 0) / todasRespPregunta.length) * 10) / 10
+      // Excluir valor=0 (preguntas opcionales/texto)
+      const valsGeneral = todasRespPregunta.map((r: { valor: number }) => r.valor).filter((v: number) => v > 0)
+      satisfaccion_general = valsGeneral.length
+        ? Math.round((valsGeneral.reduce((a: number, b: number) => a + b, 0) / valsGeneral.length) * 10) / 10
+        : 0
 
       const byPregunta: Record<string, { texto: string; vals: number[] }> = {}
       for (const r of todasRespPregunta) {
+        if (r.valor === 0) continue // skip optional/text questions
         if (!byPregunta[r.preguntaId]) byPregunta[r.preguntaId] = { texto: r.pregunta.texto, vals: [] }
         byPregunta[r.preguntaId].vals.push(r.valor)
       }

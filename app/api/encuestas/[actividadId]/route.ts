@@ -48,20 +48,22 @@ export async function GET(
     const totalParticipantes = await prisma.participante.count({ where: { actividadId: params.actividadId } })
     const totalRespuestas = encuesta.respuestas.length
 
-    // Promedio general
-    const allValues = encuesta.respuestas.flatMap((r) => r.respuestas.map((rp) => rp.valor))
+    // Promedio general — excluir valor=0 (preguntas opcionales/texto sin respuesta)
+    const allValues = encuesta.respuestas.flatMap((r) => r.respuestas.map((rp) => rp.valor)).filter((v) => v > 0)
     const promedioGeneral = allValues.length > 0 ? allValues.reduce((a, b) => a + b, 0) / allValues.length : 0
 
-    // Promedio por pregunta
+    // Promedio por pregunta — excluir valor=0
     const porPregunta = encuesta.preguntas.map((p) => {
-      const vals = encuesta.respuestas.flatMap((r) => r.respuestas.filter((rp) => rp.preguntaId === p.id).map((rp) => rp.valor))
+      const vals = encuesta.respuestas
+        .flatMap((r) => r.respuestas.filter((rp) => rp.preguntaId === p.id).map((rp) => rp.valor))
+        .filter((v) => v > 0)
       const avg = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0
       return { preguntaId: p.id, texto: p.texto, orden: p.orden, promedio: Math.round(avg * 10) / 10 }
     })
 
-    // Respuestas individuales con promedio
+    // Respuestas individuales con promedio — excluir valor=0
     const respuestasIndividuales = encuesta.respuestas.map((r) => {
-      const vals = r.respuestas.map((rp) => rp.valor)
+      const vals = r.respuestas.map((rp) => rp.valor).filter((v) => v > 0)
       const avg = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0
       return {
         id: r.id,
